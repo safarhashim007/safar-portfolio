@@ -1,0 +1,16 @@
+# Dependencies
+node_modules
+
+# Build output (Vercel builds on remote server)
+dist
+
+# Source media originals & scratch files (never shipped to production)
+assets-src/
+_removed/
+_to_delete-smoke/
+.smoke/
+*.tgz
+
+# Environment & local files
+.env*.local
+.DS_Store
