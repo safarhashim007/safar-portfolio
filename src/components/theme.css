@@ -1,0 +1,35 @@
+/* Layout comes from .nav-controls button; what is left is the state. */
+.theme-toggle {
+  opacity: 0.58;
+  transition: opacity var(--t-fast) var(--ease);
+}
+
+.theme-toggle:hover,
+.theme-toggle:focus-visible,
+.theme-toggle[aria-pressed='true'] {
+  opacity: 1;
+}
+
+.theme-glyph {
+  font-size: 0.5625rem;
+  line-height: 1;
+  transition: transform var(--t-mid) var(--ease);
+}
+
+.theme-toggle:hover .theme-glyph {
+  transform: scale(1.18);
+}
+
+/* The bar carries a wordmark, two states and a menu; on a phone the words
+   give way and the glyphs carry the meaning. */
+@media (max-width: 34rem) {
+  .theme-word {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-toggle:hover .theme-glyph {
+    transform: none;
+  }
+}

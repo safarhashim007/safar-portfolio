@@ -1,0 +1,98 @@
+/* The control lives in the navigation bar, so it inherits the bar's
+   difference blending and its white: one readout among the site's other
+   readouts rather than a widget floating over the work. */
+.music {
+  display: inline-flex;
+}
+
+.music-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4375rem;
+  min-height: 2.75rem;
+  color: inherit;
+  opacity: 0.58;
+  transition: opacity var(--t-fast) var(--ease);
+}
+
+.music-toggle:hover,
+.music-toggle:focus-visible,
+.music-toggle[aria-pressed='true'] {
+  opacity: 1;
+}
+
+.music-note {
+  font-size: 0.8125rem;
+  line-height: 1;
+  transition: transform var(--t-mid) var(--ease);
+}
+
+.music-toggle:hover .music-note {
+  transform: translateY(-1px) rotate(-8deg);
+}
+
+/* ---- indicator ------------------------------------------------------- */
+
+.music-eq {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 0.6875rem;
+}
+
+.music-eq i {
+  width: 2px;
+  height: 20%;
+  background: currentcolor;
+  transition: height var(--t-mid) var(--ease);
+}
+
+.music-eq[data-on] i {
+  height: 100%;
+  transform-origin: bottom;
+  animation: music-bar 900ms var(--ease) infinite alternate;
+}
+
+.music-eq[data-on] i:nth-child(2) {
+  animation-duration: 640ms;
+  animation-delay: 120ms;
+}
+
+.music-eq[data-on] i:nth-child(3) {
+  animation-duration: 1120ms;
+  animation-delay: 260ms;
+}
+
+@keyframes music-bar {
+  from {
+    transform: scaleY(0.25);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+/* ---- narrow ---------------------------------------------------------- */
+
+/* The bar carries a wordmark, a state and a menu; on a phone the word is
+   what gives way, because the note and the bars already say it. */
+@media (max-width: 34rem) {
+  .music-word {
+    display: none;
+  }
+}
+
+/* ---- reduced motion -------------------------------------------------- */
+
+/* The bars still report state, they simply stop moving: the playing height
+   is held rather than animated. */
+@media (prefers-reduced-motion: reduce) {
+  .music-eq[data-on] i {
+    animation: none;
+    transform: none;
+  }
+
+  .music-toggle:hover .music-note {
+    transform: none;
+  }
+}

@@ -1,0 +1,184 @@
+/* Drawn by hand — a studio table. */
+
+.art {
+  padding: var(--section-y) var(--gutter);
+  background: var(--paper);
+}
+
+.art-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.75rem 2rem;
+  align-items: end;
+  padding-bottom: clamp(2rem, 5vh, 4rem);
+}
+
+.art-head > .readout:first-child {
+  grid-column: 1 / -1;
+}
+
+.art-head h2 {
+  text-transform: uppercase;
+}
+
+.art-head-lead {
+  justify-self: end;
+  text-align: right;
+  color: var(--ink-soft);
+}
+
+.art-head-count {
+  grid-column: 1 / -1;
+  padding-top: 1rem;
+  border-top: 1px solid var(--rule);
+}
+
+/*
+ * The surface. Every child is placed in fractions of --tw, the table's own
+ * measured width, so the whole composition scales with one number and a
+ * resize never re-runs the layout.
+ */
+.art-table {
+  position: relative;
+  list-style: none;
+  margin-top: clamp(1.5rem, 4vh, 3rem);
+}
+
+.art-print {
+  position: absolute;
+  left: calc(var(--tw) * var(--x));
+  top: calc(var(--tw) * var(--y));
+  width: calc(var(--tw) * var(--w));
+  z-index: var(--z);
+  /* The sheets drift a little against the scroll — the only motion on the
+     table, and slower than anything in the photography section. --v comes
+     from useScrollVelocity on the section. */
+  transform: translate3d(0, calc(var(--v, 0) * -7px), 0);
+}
+
+.art-print:hover,
+.art-print:focus-within {
+  z-index: 200;
+}
+
+/*
+ * Lifting a print: it straightens, rises, and its shadow opens up — turning a
+ * drawing towards the light rather than scaling a card.
+ */
+.art-print-lift {
+  display: block;
+  width: 100%;
+  text-align: left;
+  transform: rotate(calc((var(--rot) + var(--settle-rot, 7)) * 1deg))
+    translate3d(0, var(--settle-y, 1.75rem), 0);
+  opacity: 0;
+  transition:
+    transform 760ms var(--ease),
+    opacity 620ms var(--ease);
+}
+
+.art-print-lift[data-reveal='in'] {
+  --settle-rot: 0;
+  --settle-y: 0rem;
+  opacity: 1;
+}
+
+@media (hover: hover) {
+  .art-print-lift:hover {
+    --settle-rot: calc(var(--rot) * -1);
+    --settle-y: -0.75rem;
+    transition-duration: 420ms;
+  }
+}
+
+.art-print-lift:focus-visible {
+  --settle-rot: calc(var(--rot) * -1);
+  --settle-y: -0.75rem;
+}
+
+.art-print-mat {
+  display: block;
+  padding: 0.5rem 0.5rem 0.45rem;
+  background: var(--paper-raised);
+  box-shadow:
+    0 1px 2px rgb(var(--shadow) / 7%),
+    0 6px 16px rgb(var(--shadow) / 9%);
+  transition: box-shadow 420ms var(--ease);
+}
+
+.art-print-lift:hover .art-print-mat,
+.art-print-lift:focus-visible .art-print-mat {
+  box-shadow:
+    0 2px 4px rgb(var(--shadow) / 8%),
+    0 18px 40px rgb(var(--shadow) / 18%);
+}
+
+.art-print-mat img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: var(--paper-sunk);
+}
+
+/* The only two pieces composed to be cropped to the portrait ratio of the work
+   around them. Everything else keeps the proportions it was drawn in. */
+.art-print-mat--crop img {
+  object-fit: cover;
+  object-position: center;
+}
+
+.art-print-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+  color: var(--ink-faint);
+  opacity: 0;
+  transition: opacity var(--t-mid) var(--ease);
+}
+
+.art-print-lift:hover .art-print-label,
+.art-print-lift:focus-visible .art-print-label {
+  opacity: 1;
+}
+
+@media (max-width: 700px) {
+  .art-head {
+    grid-template-columns: 1fr;
+  }
+
+  .art-head-lead {
+    justify-self: start;
+    text-align: left;
+  }
+
+  .art-print-mat {
+    padding: 0.375rem 0.375rem 0.325rem;
+  }
+}
+
+/*
+ * Reduced motion is a designed still, not a switch that breaks the table: the
+ * prints are already down, already settled, still at their own angles. Only
+ * the settling and the drift are removed.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .art-print {
+    transform: none;
+  }
+
+  .art-print-lift,
+  .art-print-lift[data-reveal='in'] {
+    --settle-rot: 0;
+    --settle-y: 0rem;
+    opacity: 1;
+  }
+}
+
+/* Each print registers at a slightly different speed as it crosses the eye. */
+@media (prefers-reduced-motion: no-preference) {
+  .art-print {
+    transform: translate3d(0, calc((var(--frame-progress, 0.5) - 0.5) * (24px + var(--depth) * 28px) + var(--v, 0) * -12px), 0);
+  }
+}

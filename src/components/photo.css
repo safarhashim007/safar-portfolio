@@ -1,0 +1,163 @@
+.photo {
+  position: relative;
+  padding: var(--section-y) var(--gutter);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.photo-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.75rem 2rem;
+  align-items: end;
+  padding-bottom: clamp(2.5rem, 7vh, 5.5rem);
+}
+
+.photo-head > .readout:first-child {
+  grid-column: 1 / -1;
+}
+
+.photo-head h2 {
+  text-transform: uppercase;
+}
+
+.photo-head-lead {
+  justify-self: end;
+  text-align: right;
+  color: var(--ink-soft);
+}
+
+.photo-head-count {
+  grid-column: 1 / -1;
+  padding-top: 1rem;
+  border-top: 1px solid var(--rule);
+}
+
+.photo-grid {
+  columns: 3;
+  column-gap: clamp(0.75rem, 1.5vw, 1.375rem);
+}
+
+.photo-item {
+  display: inline-block;
+  width: 100%;
+  margin: 0 0 clamp(1.25rem, 4vh, 3.25rem);
+  break-inside: avoid;
+}
+
+/*
+ * A print is uncovered, not faded in: the mask travels up the frame while the
+ * photograph settles back from a slight enlargement. Faster than the drawings
+ * — photography is the quick half of this site.
+ */
+.photo-frame {
+  position: relative;
+  width: 100%;
+  background: var(--paper-sunk);
+  overflow: hidden;
+}
+
+.photo-frame[data-reveal] .photo-lag {
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path 620ms var(--ease);
+}
+
+.photo-frame[data-reveal='in'] .photo-lag {
+  clip-path: inset(0 0 0 0);
+}
+
+/*
+ * The photograph lags inside its own window as the page moves, the way a print
+ * does when you tilt the board it is pinned to. --v comes from
+ * useScrollVelocity on the section, and carries no transition: the value is
+ * already damped, and transitioning it would smear each frame's update into
+ * the next and turn a lag into a swim.
+ */
+.photo-lag {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform: translate3d(0, calc((var(--frame-progress, 0.5) - 0.5) * -28px + var(--v, 0) * 12px), 0);
+  will-change: transform;
+}
+
+/* The 1.08 resting scale is the margin the lag runs into, so no edge is ever
+   exposed. The reveal settles back from a larger scale — this one is
+   transitioned, which is why it lives on a different element. */
+.photo-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.08);
+  transition: transform 780ms var(--ease);
+}
+
+.photo-frame[data-reveal] img {
+  transform: scale(1.16);
+}
+
+.photo-frame[data-reveal='in'] img {
+  transform: scale(1.08);
+}
+
+/* Hover settles the print flat and brings its caption up to full strength —
+   information on hover, never a transformation of the photograph. */
+@media (hover: hover) {
+  .photo-item:hover .photo-frame img {
+    transform: scale(1.08);
+    transition-duration: 640ms;
+  }
+}
+
+.photo-caption {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.75rem;
+  padding-top: 0.625rem;
+  color: var(--ink-faint);
+  transition: color var(--t-fast) var(--ease);
+}
+
+.photo-caption span:nth-child(2) {
+  color: var(--ink-soft);
+  transition: color var(--t-fast) var(--ease);
+}
+
+.photo-item:hover .photo-caption span:nth-child(2) {
+  color: var(--ink);
+}
+
+@media (max-width: 1000px) {
+  .photo-grid {
+    columns: 2;
+  }
+}
+
+@media (max-width: 600px) {
+  .photo-head {
+    grid-template-columns: 1fr;
+  }
+
+  .photo-head-lead {
+    justify-self: start;
+    text-align: left;
+  }
+
+  .photo-grid {
+    columns: 1;
+  }
+}
+
+/* The reveal is a designed still: everything already uncovered, nothing moving. */
+@media (prefers-reduced-motion: reduce) {
+  .photo-frame[data-reveal] .photo-lag,
+  .photo-frame[data-reveal='in'] .photo-lag {
+    clip-path: none;
+  }
+
+  .photo-lag,
+  .photo-frame[data-reveal] img,
+  .photo-frame[data-reveal='in'] img {
+    transform: none;
+  }
+}

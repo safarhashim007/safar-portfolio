@@ -1,0 +1,143 @@
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: var(--z-nav);
+  width: 100%;
+  height: var(--nav-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--gutter);
+  /* Difference keeps the mark legible over paper, over ink and over the
+     artwork drum without a plate behind it. */
+  mix-blend-mode: difference;
+  color: #e6e4de;
+}
+
+.nav-mark {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+.nav-mark span[aria-hidden] {
+  font-weight: 400;
+  letter-spacing: 0.04em;
+}
+
+/* The state controls and the menu control read as one group at the end of the
+   bar, spaced far enough apart that neither is hit by accident. */
+.nav-controls {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.75rem, 2.4vw, 1.5rem);
+}
+
+/* One shape for everything in the group: a glyph, a word, and a target big
+   enough for a thumb. */
+.nav-controls button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4375rem;
+  min-height: 2.75rem;
+  color: inherit;
+}
+
+.nav-toggle {
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  color: inherit;
+}
+
+/* ---- index overlay --------------------------------------------------- */
+
+.index {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-menu);
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 1.5rem;
+  padding: calc(var(--nav-h) + 1rem) var(--gutter) 1.5rem;
+  background: var(--ink);
+  color: var(--paper);
+  --rule: color-mix(in srgb, var(--paper) 22%, transparent);
+  transform: translateY(-100%);
+  transition: transform var(--t-slow) var(--ease);
+  visibility: hidden;
+}
+
+.index.is-open {
+  transform: none;
+  visibility: visible;
+}
+
+.index-label,
+.index .readout {
+  color: color-mix(in srgb, var(--paper) 62%, transparent);
+}
+
+.index ul {
+  list-style: none;
+  align-self: center;
+  border-top: 1px solid var(--rule);
+}
+
+.index li {
+  border-bottom: 1px solid var(--rule);
+}
+
+.index li a {
+  display: grid;
+  grid-template-columns: 4rem minmax(0, 1fr);
+  align-items: center;
+  gap: 1rem;
+  padding: clamp(0.5rem, 1.6vh, 1rem) 0;
+  overflow: hidden;
+}
+
+.index-name {
+  font-size: clamp(2.25rem, 8vw, 6.5rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.055em;
+  text-transform: uppercase;
+  transition: transform var(--t-mid) var(--ease);
+}
+
+.index li a:hover .index-name,
+.index li a:focus-visible .index-name {
+  transform: translateX(1.25rem);
+}
+
+.index-foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: end;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--rule);
+}
+
+.index-foot a {
+  min-height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  color: var(--paper);
+}
+
+.index :focus-visible {
+  outline-color: var(--reg-on-dark);
+}
+
+@media (max-width: 700px) {
+  .index li a {
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+  }
+}

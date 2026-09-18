@@ -1,0 +1,143 @@
+/*
+ * ONE ground, ONE inversion, ONE accent.
+ *
+ * Ground is paper, because every part of this portfolio is finally an image on
+ * a surface: a drawing on paper, a print on a mat, a plate in a paper. The one
+ * inversion is photography, which needs a dark mat to be read properly, so that
+ * section — and only that section — flips to ink.
+ *
+ * The accent is registration blue. In image correspondence work (CHANDRA) the
+ * matches found between two views of the same place are drawn in a single hue
+ * over grey imagery. Here it means exactly one thing: IN REGISTER — active,
+ * selected, current, live. It never decorates. Budget: under 1% of a viewport.
+ */
+:root {
+  color-scheme: light;
+
+  /* ground */
+  --paper: #e6e4de;
+  --paper-sunk: #dbd8d0; /* recessed surfaces: mats, image wells */
+  --paper-raised: #efedE7;
+  --ink: #16171a;
+  --ink-soft: #5d5e58; /* metadata, secondary — 4.9:1 on paper */
+  --ink-faint: #8a8b84; /* disabled, ticks — never body text */
+  --rule: #c5c3b8;
+
+  /* the one inversion */
+  --dark: #16171a;
+  --dark-sunk: #1e1f23;
+  --dark-raised: #23242a;
+  --on-dark: #e6e4de;
+  --on-dark-soft: #94958d;
+  --on-dark-faint: #6a6b64;
+  --dark-rule: #31323a;
+
+  /* the one accent */
+  --reg: #2136e8;
+  --reg-on-dark: #7f8dff;
+
+  /* What a cast shadow is made of. On paper it is ink; on a dark ground ink
+     is invisible, so it becomes true black. */
+  --shadow: 22 23 26;
+
+  /* type */
+  --font: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  --font-read: 'DM Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* Two scales, deliberately far apart: a conventional reading scale, and one
+     display size. Nothing in between, so a display moment cannot be diluted. */
+  --t-display: clamp(3.4rem, 9.2vw, 9.5rem);
+  --t-h2: clamp(2.1rem, 5.4vw, 4.6rem);
+  --t-h3: clamp(1.35rem, 2.4vw, 2.1rem);
+  --t-lead: clamp(1.05rem, 1.5vw, 1.375rem);
+  --t-body: 1rem;
+  --t-read: 0.6875rem; /* 11px readouts */
+  --t-read-lg: 0.8125rem;
+
+  --track-display: -0.05em;
+  --track-read: 0.09em;
+
+  /* 8px rhythm */
+  --s1: 0.5rem;
+  --s2: 1rem;
+  --s3: 1.5rem;
+  --s4: 2rem;
+  --s5: 3rem;
+  --s6: 4.5rem;
+  --s7: 7rem;
+  --s8: 10rem;
+
+  --gutter: clamp(1.125rem, 3.4vw, 3rem);
+  --section-y: clamp(4.5rem, 11vh, 10rem);
+  --nav-h: 3.75rem;
+
+  /*
+   * ONE motion system. Every state change REGISTERS: two offset things
+   * converge into alignment. Damped, never elastic — an instrument that
+   * overshoots is a broken instrument.
+   */
+  --ease: cubic-bezier(0.22, 0.61, 0.2, 1);
+  --ease-in: cubic-bezier(0.55, 0, 0.55, 0.2);
+  --t-fast: 180ms;
+  --t-mid: 420ms;
+  --t-slow: 760ms;
+
+  --z-name: 2;
+  --z-canvas: 3;
+  --z-frame: 4;
+  --z-menu: 60;
+  /* above the index overlay: the control that closes it lives in the bar, and
+     an overlay that hides its own close button is a trap */
+  --z-nav: 65;
+  --z-modal: 70;
+}
+
+/*
+ * DARK MODE IS THE SAME SYSTEM, TURNED OVER.
+ *
+ * Not a second design: the two families simply trade places. Ground becomes
+ * ink and the one inversion becomes paper, so the section that flipped to a
+ * dark mat on a paper page flips to a paper mat on a dark page. Every
+ * component keeps reading the same semantic tokens and none of them has to
+ * know which way up the site is.
+ */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  /* ground */
+  --paper: #16171a;
+  --paper-sunk: #1e1f23;
+  --paper-raised: #23242a;
+  --ink: #e6e4de;
+  --ink-soft: #94958d;
+  --ink-faint: #6a6b64;
+  --rule: #31323a;
+
+  /* the one inversion */
+  --dark: #e6e4de;
+  --dark-sunk: #dbd8d0;
+  --dark-raised: #efede7;
+  --on-dark: #16171a;
+  --on-dark-soft: #5d5e58;
+  --on-dark-faint: #8a8b84;
+  --dark-rule: #c5c3b8;
+
+  /* the one accent */
+  --reg: #7f8dff;
+  --reg-on-dark: #2136e8;
+
+  --shadow: 0 0 0;
+}
+
+/* The inversion, applied by a section rather than by a component, so a
+   component never has to know which ground it is standing on. */
+.on-dark {
+  --paper: var(--dark);
+  --paper-sunk: var(--dark-sunk);
+  --paper-raised: var(--dark-raised);
+  --ink: var(--on-dark);
+  --ink-soft: var(--on-dark-soft);
+  --ink-faint: var(--on-dark-faint);
+  --rule: var(--dark-rule);
+  --reg: var(--reg-on-dark);
+}

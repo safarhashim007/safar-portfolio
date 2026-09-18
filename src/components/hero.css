@@ -1,0 +1,346 @@
+/*
+ * The hero is one tall section with a sticky stage. No pinning, so nothing
+ * rewrites the document flow and nothing can fight the smooth-scroll layer.
+ * 250vh of travel drives the whole sequence and then the page carries on.
+ */
+.hero {
+  position: relative;
+  height: 340svh;
+  background: var(--paper);
+  touch-action: pan-y; /* a horizontal drag turns the drum; a vertical one scrolls */
+}
+
+.hero-stage {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  min-height: 34rem;
+  overflow: clip;
+  isolation: isolate;
+}
+
+/* Resolves the --gutter token to a pixel value for the scroll transform. */
+.hero-anchor {
+  position: absolute;
+  left: var(--gutter);
+  top: 0;
+  width: 0;
+  height: 0;
+}
+
+/* ---- the name ------------------------------------------------------- */
+
+.hero-name {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: var(--z-name);
+
+  display: flex;
+  flex-direction: column;
+
+  font-size: var(--t-display);
+  font-weight: 600;
+  line-height: 0.82;
+  letter-spacing: var(--track-display);
+  text-transform: uppercase;
+  color: var(--ink);
+
+  white-space: nowrap;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+.hero-name span:last-child {
+  /* the offset that keeps two words from reading as one block */
+  margin-left: 0.14em;
+}
+
+/* ---- the drum ------------------------------------------------------- */
+
+.ring-canvas {
+  position: absolute !important;
+  inset: 0;
+  z-index: var(--z-canvas);
+  /* Input is handled by the section, so the canvas never intercepts a
+     selection on the heading underneath it. */
+  pointer-events: none !important;
+}
+
+/* The still archive sits beside the name rather than over it, and below it in
+   the stack, so the heading is never covered by its own fallback. */
+.hero-still {
+  position: absolute;
+  right: var(--gutter);
+  bottom: 18%;
+  z-index: 1;
+  width: min(48%, 34rem);
+  height: clamp(9rem, 26vh, 15rem);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+}
+
+.hero-still img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: var(--paper-sunk);
+  box-shadow: 0 2px 10px rgb(var(--shadow) / 8%);
+}
+
+.hero-still img:nth-child(n + 5) {
+  display: none;
+}
+
+/* ---- the still frame around it -------------------------------------- */
+
+.hero-frame {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-frame);
+  pointer-events: none;
+}
+
+.hero-frame > * {
+  position: absolute;
+  pointer-events: auto;
+}
+
+.hero-role {
+  left: var(--gutter);
+  top: calc(var(--nav-h) + 1.25rem);
+  list-style: none;
+  line-height: 1.7;
+}
+
+.hero-place {
+  right: var(--gutter);
+  top: calc(var(--nav-h) + 1.25rem);
+  text-align: right;
+}
+
+/*
+ * The readout only earns its place once the drum has begun to open — before
+ * that there is nothing yet to report. It registers into place rather than
+ * fading: two offset halves converging is the site's one motion idea.
+ */
+.hero-readout {
+  left: var(--gutter);
+  bottom: 7.5rem;
+  display: grid;
+  gap: 0.375rem;
+  opacity: clamp(0, calc((var(--p, 0) - 0.12) * 6), 1);
+  transform: translateX(calc((1 - clamp(0, calc((var(--p, 0) - 0.12) * 6), 1)) * -0.75rem));
+}
+
+.hero-readout-title {
+  color: var(--ink);
+  letter-spacing: 0.04em;
+}
+
+.hero-readout-medium {
+  color: var(--ink-soft);
+}
+
+.hero-readout .readout--live::before {
+  content: '';
+  display: inline-block;
+  width: 0.3125rem;
+  height: 0.3125rem;
+  margin-right: 0.5rem;
+  background: var(--reg);
+  vertical-align: 0.05em;
+}
+
+.hero-hint {
+  right: var(--gutter);
+  bottom: 3.25rem;
+  /* the instruction retires once it has been followed */
+  opacity: clamp(0, calc(1 - var(--p, 0) * 4), 1);
+}
+
+.hero-next {
+  right: var(--gutter);
+  bottom: 7.5rem;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  min-height: 2.75rem;
+  color: var(--ink);
+}
+
+.hero-next span:last-child {
+  font-size: 1.25rem;
+  transition: transform var(--t-mid) var(--ease);
+}
+
+.hero-next:hover span:last-child {
+  transform: translateY(0.25rem);
+}
+
+/* ---- compact -------------------------------------------------------- */
+
+@media (max-width: 900px) {
+  .hero {
+    height: 300svh;
+  }
+
+  .hero-name {
+    white-space: normal;
+  }
+
+  /* the animated layout only: in still mode the roles are grid items and
+     must not be squeezed into a narrow column */
+  .hero:not(.hero--still) .hero-role {
+    max-width: 11ch;
+  }
+
+  .hero-place {
+    display: none;
+  }
+
+  .hero-readout {
+    right: var(--gutter);
+    bottom: 6.5rem;
+  }
+
+  .hero-still {
+    left: var(--gutter);
+    width: auto;
+    bottom: 22%;
+    height: clamp(7rem, 18vh, 11rem);
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .hero-still img:nth-child(n + 4) {
+    display: none;
+  }
+
+  .hero--still .hero-still {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .hero-hint {
+    display: none;
+  }
+
+  .hero-next {
+    bottom: 3.25rem;
+    gap: 0.75rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .hero-next { bottom: 6.5rem; }
+  .hero-readout { bottom: 10rem; }
+}
+
+/*
+ * One screen, nothing moving — for reduced motion and for no WebGL.
+ *
+ * Everything comes out of absolute positioning and back into flow. Placing a
+ * fallback with the same corner offsets the animated version uses means every
+ * change of type size is a chance for two of those corners to collide, which
+ * is exactly what happened on a phone. In flow they cannot.
+ */
+.hero--still {
+  height: auto;
+  min-height: 100svh;
+}
+
+.hero--still .hero-stage {
+  position: relative;
+  height: auto;
+  min-height: 100svh;
+  overflow: visible;
+  display: grid;
+  /* one full-width column, so every band lines up on the same measure */
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: repeat(6, auto) 1fr auto;
+  gap: clamp(1rem, 3vh, 2.25rem);
+  padding: calc(var(--nav-h) + 1.25rem) var(--gutter) 2rem;
+  align-content: start;
+}
+
+.hero--still .hero-anchor {
+  display: none;
+}
+
+.hero--still .hero-name {
+  position: static;
+  transform: none !important;
+  order: 3;
+  white-space: normal;
+}
+
+.hero--still .hero-still {
+  position: static;
+  order: 4;
+  width: 100%;
+  height: clamp(8rem, 24vh, 15rem);
+  grid-template-columns: repeat(6, 1fr);
+}
+
+/* the frame's children become items of the stage's own grid */
+.hero--still .hero-frame {
+  position: static;
+  display: contents;
+}
+
+.hero--still .hero-frame > * {
+  position: static;
+}
+
+.hero--still .hero-role {
+  order: 1;
+}
+
+.hero--still .hero-place {
+  order: 2;
+}
+
+.hero--still .hero-readout {
+  order: 5;
+  opacity: 1;
+  transform: none;
+}
+
+
+.hero--still .hero-hint {
+  order: 7;
+  opacity: 1;
+  align-self: end;
+}
+
+.hero--still .hero-next {
+  order: 8;
+  justify-content: space-between;
+  padding-top: 1rem;
+  border-top: 1px solid var(--rule);
+}
+
+/*
+ * Reduced motion is a designed state, not a switch that breaks the layout:
+ * the drum is arranged in its open, settled position from the start, the
+ * section is a single screen tall, and nothing moves.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .hero {
+    height: auto;
+    min-height: 100svh;
+  }
+
+  .hero-stage {
+    position: relative;
+  }
+
+  .hero-readout {
+    opacity: 1;
+    transform: none;
+  }
+
+  .hero-hint {
+    opacity: 1;
+  }
+}

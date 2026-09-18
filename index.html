@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <title>Safar Hashim — AI, code, drawing, photography</title>
+    <meta
+      name="description"
+      content="Safar Hashim is an AI and machine learning student, developer and visual artist in Kochi, India. Lunar image correspondence, personal finance software, drawings and photography."
+    />
+    <meta name="theme-color" content="#e6e4de" />
+    <meta name="color-scheme" content="light dark" />
+
+    <!--
+      Paper is the ground this identity is built on, so paper is what a
+      first visit gets, whatever the operating system prefers. Only a
+      visitor's own choice turns it over, and it is read here — blocking,
+      before the stylesheet — so the page never paints one way and
+      repaints the other.
+    -->
+    <script>
+      try {
+        var theme = localStorage.getItem('safar-theme') === 'dark' ? 'dark' : 'light'
+        document.documentElement.dataset.theme = theme
+        if (theme === 'dark') {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#16171a')
+        }
+      } catch (e) {}
+    </script>
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Safar Hashim" />
+    <meta
+      property="og:description"
+      content="AI and machine learning student, developer, visual artist. Kochi, India."
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap"
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
