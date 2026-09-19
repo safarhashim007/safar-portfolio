@@ -22,25 +22,26 @@ import './photo.css'
  */
 export default function PhotoGallery() {
   const section = useRef<HTMLElement>(null)
-  useElementParallax(section, '.photo-frame')
+  useElementParallax(section, '.photo-frame, .photo-scene')
   useScrollVelocity(section)
 
   return (
     <section className="photo on-dark" id="photography" ref={section} aria-labelledby="photo-title">
-      <header className="photo-head">
-        <span className="readout">03 / Through the lens</span>
-        <h2 className="h2" id="photo-title" data-reveal>
-          Photo
+      <header className="photo-scene">
+        <img className="photo-scene-image" src={full('photo', '26')} width={1080} height={1920} alt="" loading="lazy" />
+        <span className="photo-scene-kicker readout">03 / Photography</span>
+        <h2 className="photo-scene-title" id="photo-title">
+          Through
           <br />
-          archive
+          <em>the lens.</em>
         </h2>
-        <p className="lead photo-head-lead" data-reveal data-reveal-delay="1">
-          Places, light and people that held still long enough.
-        </p>
-        <p className="readout photo-head-count">{photos.length} frames · 2024—26</p>
+        <div className="photo-scene-foot readout">
+          <span>{photos.length} frames · 2024—26</span>
+          <a href="#photo-collection">Explore the collection <span aria-hidden="true">↓</span></a>
+        </div>
       </header>
 
-      <div className="photo-grid">
+      <div className="photo-grid" id="photo-collection">
         {photos.map((photo, index) => {
           const image = source('photo', photo.id)
 

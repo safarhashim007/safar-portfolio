@@ -10,6 +10,8 @@ export interface Project {
   /** One sentence, the problem, for someone who is not an engineer. */
   problem: string
   description: string
+  /** A plain-language path through the system, used by the project drawing. */
+  stages: [string, string, string]
   stack: string
   /** What exists today — unfinished work is stated, not hidden. */
   state: string
@@ -28,6 +30,7 @@ export const projects: Project[] = [
       'Two photographs of the same patch of the Moon, taken from different orbits under different sunlight, do not look like the same place.',
     description:
       'A lunar image correspondence system that matches Chandrayaan-2 optical imagery despite substantial changes in illumination, viewpoint and scale, so that the same feature can be identified across passes.',
+    stages: ['Orbit imagery', 'Image matches', 'Evaluation'],
     stack: 'PYTHON / PYTORCH / OPENCV / ROMA',
     state: 'Matching and evaluation pipeline running against paired imagery; benchmarks and failure cases are still being written up.',
     repo: 'https://github.com/safarhashim007/Chandra',
@@ -43,6 +46,7 @@ export const projects: Project[] = [
       'Students and people in their first job can see what they spent, but not what it means or what it costs them later.',
     description:
       'A personal finance platform for students and young professionals covering spending, budgets, goals, forecasting and the reasoning behind a financial decision rather than only its record.',
+    stages: ['Spending', 'Forecast', 'Decision'],
     stack: 'ANDROID / KOTLIN / AI',
     state: 'Unreleased and incomplete. Core flows are being built; nothing here is shipped, and no figures shown are from a live product.',
     repo: null,
@@ -58,6 +62,7 @@ export const projects: Project[] = [
       'Solar output data is plentiful and almost never turned into a decision anyone acts on.',
     description:
       'An analysis project over solar energy data, looking at how panel performance can be modelled and explained in terms an owner or operator would actually use.',
+    stages: ['Solar data', 'Performance model', 'Operator insight'],
     stack: 'PYTHON / DATA / ML',
     state: 'Working analysis and models over collected datasets.',
     repo: 'https://github.com/safarhashim007/lumira-solar-ai',
@@ -73,6 +78,7 @@ export const projects: Project[] = [
       'The relationship between a compound and the thing it acts on is a table of identifiers long before it is a picture.',
     description:
       'An interactive system for exploring drug-target relationships, bringing molecular structure and biological data into one visual interface with property prediction alongside it.',
+    stages: ['Compound', 'Relationship map', 'Property estimate'],
     stack: 'PYTHON / FLASK / RDKIT / PUBCHEM',
     state: 'Working interface over molecular data with property prediction.',
     repo: null,

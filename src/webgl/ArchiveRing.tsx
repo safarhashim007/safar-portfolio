@@ -1,16 +1,18 @@
-import { Canvas, useFrame } from '@react-three/fiber'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { useTexture } from '@react-three/drei'
 import { Suspense, useEffect, useMemo, useRef, type RefObject } from 'react'
 import * as THREE from 'three'
 
 import { artworks } from '../data/artworks'
 import { media } from '../data/media'
-import { full } from '../lib/image'
+import { pick } from '../lib/image'
 import type { DragState } from '../hooks/useCarouselDrag'
 import type { Quality } from '../hooks/useDeviceQuality'
 import { matCardFragment, matCardVertex } from './shaders/matCard'
 import { useTheme } from '../hooks/useTheme'
 import {
+  COMPACT_TEXTURE,
+  DESKTOP_TEXTURE,
   buildSlots,
   cardPlacement,
   COMPACT_LAYOUT,
@@ -26,6 +28,7 @@ import {
 /** One full turn a little over a minute — below the threshold where motion
  *  competes with reading, above the threshold where the object looks dead. */
 const AMBIENT = 0.085
+
 
 /* The drum stands on the page's ground, so the haze it recedes into and the
    mat it is framed by have to turn over with the page. Same three roles,
@@ -48,6 +51,8 @@ interface RingProps {
   progress: RefObject<number>
   drag: RefObject<DragState>
   layout: RingLayout
+  /** Texture width to ask the ladder for, in pixels. */
+  texture: number
   paused: boolean
   reduced: boolean
   onFocus: (artIndex: number) => void
@@ -59,6 +64,7 @@ function Ring({
   progress,
   drag,
   layout,
+  texture,
   paused,
   reduced,
   onFocus,
@@ -66,22 +72,33 @@ function Ring({
 }: RingProps) {
   const group = useRef<THREE.Group>(null)
   const slots = useMemo(() => buildSlots(layout, artworks.length), [layout])
-  const urls = useMemo(() => artworks.map((art) => full('art', art.id)), [])
+  const urls = useMemo(
+    () => artworks.map((art) => pick('art', art.id, texture)),
+    [texture],
+  )
   const textures = useTexture(urls)
   const auto = useRef(0)
   const focused = useRef(-1)
 
   const radius = useMemo(() => ringRadius(layout), [layout])
 
+  const maxAnisotropy = useThree((state) => state.gl.capabilities.getMaxAnisotropy())
+
   const [theme] = useTheme()
   const tones = GROUNDS[theme]
 
   const materials = useMemo(() => {
     const list = Array.isArray(textures) ? textures : [textures]
-    list.forEach((texture) => {
-      texture.colorSpace = THREE.SRGBColorSpace
-      texture.generateMipmaps = true
-      texture.minFilter = THREE.LinearMipmapLinearFilter
+    list.forEach((map) => {
+      map.colorSpace = THREE.SRGBColorSpace
+      map.generateMipmaps = true
+      map.minFilter = THREE.LinearMipmapLinearFilter
+      /* The cards are on a cylinder, so most of them are seen at an angle,
+         and that is exactly where plain mipmapping gives up and goes soft.
+         Anisotropy is the difference between a drawing and a smear at the
+         sides of the drum. */
+      map.anisotropy = maxAnisotropy
+      map.needsUpdate = true
     })
 
     return slots.map((slot) => {
@@ -105,7 +122,7 @@ function Ring({
     // shader does nothing until a full reload: Fast Refresh re-renders this
     // component, the memo does not recompute, and the materials keep the
     // sources they were built with — so the old program stays on the GPU.
-  }, [slots, textures, tones, matCardVertex, matCardFragment])
+  }, [slots, textures, tones, maxAnisotropy, matCardVertex, matCardFragment])
 
   // Materials are created outside React's ownership, so they are disposed here.
   useEffect(() => () => materials.forEach((material) => material.dispose()), [materials])
@@ -235,6 +252,7 @@ export default function ArchiveRing({
           progress={progress}
           drag={drag}
           layout={layout}
+          texture={quality.low ? COMPACT_TEXTURE : DESKTOP_TEXTURE}
           paused={paused}
           reduced={quality.reduced}
           onFocus={onFocus}

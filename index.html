@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
 
     <title>Safar Hashim — AI, code, drawing, photography</title>
     <meta
@@ -30,12 +31,36 @@
       } catch (e) {}
     </script>
 
+    <!--
+      %VITE_SITE_URL% is substituted by Vite at build time from the
+      VITE_SITE_URL environment variable (set it in the Vercel project, or in
+      a local .env — see .env.example). Absolute URLs are required here:
+      crawlers and link unfurlers do not resolve relative ones.
+    -->
+    <link rel="canonical" href="%VITE_SITE_URL%/" />
+    <meta name="author" content="Safar Hashim" />
+
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Safar Hashim" />
+    <meta property="og:locale" content="en_IN" />
+    <meta property="og:url" content="%VITE_SITE_URL%/" />
     <meta property="og:title" content="Safar Hashim" />
     <meta
       property="og:description"
       content="AI and machine learning student, developer, visual artist. Kochi, India."
     />
+    <meta property="og:image" content="%VITE_SITE_URL%/og.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="A low sun reflected across the sea." />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Safar Hashim" />
+    <meta
+      name="twitter:description"
+      content="AI and machine learning student, developer, visual artist. Kochi, India."
+    />
+    <meta name="twitter:image" content="%VITE_SITE_URL%/og.jpg" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

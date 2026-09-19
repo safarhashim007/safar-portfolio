@@ -29,6 +29,10 @@ OUT = ROOT / "public/images"
 # here.
 QUALITY = 92
 
+# A rung within 15% of the one below is not worth its bytes: the browser would
+# be choosing between two indistinguishable files.
+MIN_STEP = 1.15
+
 # Source corrections. A few files were saved with the camera's rotation baked
 # out of the EXIF but not out of the pixels, so nothing downstream can know
 # they are sideways. Degrees clockwise.
@@ -56,23 +60,25 @@ def derive(source: Path, out_dir: Path, key: str, widths: tuple[int, ...], rotat
         if rotate:
             image = image.rotate(-rotate, expand=True)
         full_w, full_h = image.size
-        made = []
-        for width in widths:
-            if width > full_w * 1.05:  # never upscale a photograph
-                continue
+
+        # The ladder is CAPPED by the master, not TRUNCATED by it. Dropping
+        # every rung wider than the source is right — nothing is ever
+        # upscaled — but it used to stop there, so a 720px drawing shipped at
+        # 400 and the drum upscaled it 1.6x on screen. When the rungs run out
+        # below the master, the master's own width becomes the last rung.
+        rungs = [w for w in widths if w <= full_w * 1.05]
+        if len(rungs) < len(widths) and full_w > (rungs[-1] if rungs else 0) * MIN_STEP:
+            rungs.append(full_w)
+
+        for width in rungs:
             target = out_dir / f"{key}-{width}.webp"
-            made.append(width)
             newest = max(source.stat().st_mtime, Path(__file__).stat().st_mtime)
             if target.exists() and target.stat().st_mtime > newest:
                 continue
             copy = image.copy()
             copy.thumbnail((width, full_h), Image.LANCZOS)
             copy.save(target, "WEBP", quality=QUALITY, method=6)
-        if not made:  # tiny original: emit it at its own width
-            width = full_w
-            made = [width]
-            image.save(out_dir / f"{key}-{width}.webp", "WEBP", quality=QUALITY, method=6)
-    return {"w": full_w, "h": full_h, "widths": made}
+    return {"w": full_w, "h": full_h, "widths": rungs}
 
 
 def main() -> None:

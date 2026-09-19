@@ -5,10 +5,9 @@ export default function Contact() {
     <footer className="contact" id="contact">
       <div className="contact-top">
         <span className="readout">05 / Contact</span>
+        <p className="contact-intro">A project, a question, or just a hello.</p>
         <h2 className="contact-title" data-reveal>
-          Let&rsquo;s make
-          <br />
-          something.
+          <a className="contact-invitation" href="mailto:safarhashim7@gmail.com">Let&rsquo;s talk.<span className="contact-arrow" aria-hidden="true">↗</span></a>
         </h2>
       </div>
 

@@ -11,7 +11,7 @@
  *   node scripts/ring-check.mjs
  */
 import { execFileSync } from 'node:child_process'
-import { mkdirSync, writeFileSync } from 'node:fs'
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
@@ -34,6 +34,7 @@ execFileSync(
   [
     join(root, 'node_modules/typescript/bin/tsc'),
     join(root, 'src/webgl/ringGeometry.ts'),
+    join(root, 'src/lib/image.ts'),
     '--outDir',
     work,
     '--module',
@@ -48,10 +49,12 @@ execFileSync(
 )
 writeFileSync(join(work, 'package.json'), '{"type":"module"}')
 
-const geometry = await import(pathToFileURL(join(work, 'ringGeometry.js')).href)
+const geometry = await import(pathToFileURL(join(work, 'webgl/ringGeometry.js')).href)
 const {
   DESKTOP_LAYOUT,
   COMPACT_LAYOUT,
+  COMPACT_TEXTURE,
+  DESKTOP_TEXTURE,
   MAT_H,
   MAT_W,
   buildSlots,
@@ -247,9 +250,94 @@ for (const testCase of cases) {
   }
 }
 
+// ---- resolution -----------------------------------------------------------
+//
+// A card is a photograph of a drawing, and a drawing drawn into more pixels
+// than its texture has is a blur. How wide a card is actually drawn is not a
+// guess: it is the same projection used above, applied to the card's own
+// corners. Measure the widest a card is ever drawn, turn that into device
+// pixels at the DPR cap, and check that the drum is never asking the ladder
+// for a rung narrower than that while a wider one exists on disk.
+
+// tsc leaves import specifiers exactly as written, and node needs the
+// extension it does not have.
+const emitted = join(work, 'lib/image.js')
+writeFileSync(emitted, readFileSync(emitted, 'utf8').replace("'../data/media'", "'../data/media.js'"))
+const image = await import(pathToFileURL(emitted).href)
+
+{
+  const media = JSON.parse(
+    (() => {
+      const source = readFileSync(join(root, 'src/data/media.ts'), 'utf8')
+      const literal = source.slice(source.indexOf('='))
+      return literal.slice(literal.indexOf('{'), literal.lastIndexOf('} as const') + 1)
+    })(),
+  )
+
+  /** The widest a single card is ever drawn, in CSS pixels. */
+  function widestCard({ layout, width, height }) {
+    const slots = buildSlots(layout, 20)
+    const radius = ringRadius(layout)
+    let widest = 0
+
+    for (let step = 0; step <= 20; step += 1) {
+      const progress = step / 20
+      const frame = ringFrame(progress, layout)
+      const project = projector(width, height)
+      for (let turn = 0; turn < 8; turn += 1) {
+        const theta = (turn / 8) * Math.PI * 2
+        for (const slot of slots) {
+          const card = cardPlacement(slot, theta, frame, layout, radius)
+          const points = corners(card, frame, layout).map(project)
+          if (points.some((point) => point === null)) continue
+          // the card's own horizontal edge, bottom-left to bottom-right
+          const [a, b] = [points[0], points[1]]
+          widest = Math.max(widest, Math.hypot(b[0] - a[0], b[1] - a[1]))
+        }
+      }
+    }
+    return widest
+  }
+
+  const CASES = [
+    { label: 'desktop', layout: DESKTOP_LAYOUT, width: 1440, height: 900, dpr: 1.75, target: DESKTOP_TEXTURE },
+    { label: 'compact', layout: COMPACT_LAYOUT, width: 390, height: 844, dpr: 1.35, target: COMPACT_TEXTURE },
+  ]
+
+  for (const testCase of CASES) {
+    const css = widestCard(testCase)
+    const needed = css * testCase.dpr
+    console.log(
+      `${testCase.label}: widest card ${css.toFixed(0)} css px, ${needed.toFixed(0)} device px at dpr ${testCase.dpr}; asking for ${testCase.target}px textures`,
+    )
+
+    if (testCase.target < needed) {
+      failures.push(
+        `${testCase.label}: asks for ${testCase.target}px textures but draws cards ${needed.toFixed(0)} device px wide`,
+      )
+    }
+
+    const limited = []
+    for (const id of Object.keys(media.art)) {
+      const widths = media.art[id].widths
+      const chosen = Number(image.pick('art', id, testCase.target).match(/-(\d+)\.webp$/)[1])
+      const best = widths[widths.length - 1]
+      if (chosen < testCase.target && chosen !== best) {
+        failures.push(
+          `${testCase.label}: art ${id} loads ${chosen}px when ${best}px exists`,
+        )
+      }
+      if (best < needed) limited.push(`${id} (${best}px)`)
+    }
+    if (limited.length) {
+      console.log(`  master-limited, nothing to be done in code: ${limited.join(', ')}`)
+    }
+  }
+}
+
 if (failures.length) {
   console.error('\nFAILED:')
   failures.forEach((line) => console.error('  ✗ ' + line))
   process.exit(1)
 }
-console.log('\nreveal sequence holds at every rotation tested')
+console.log('\nreveal sequence holds at every rotation tested, and no card is drawn from an avoidable upscale')

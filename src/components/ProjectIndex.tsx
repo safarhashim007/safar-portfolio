@@ -1,6 +1,7 @@
 import { useId, useState } from 'react'
 
 import { archive, projects } from '../data/projects'
+import ProjectDrawing from './ProjectDrawing'
 import './work.css'
 
 /**
@@ -82,6 +83,8 @@ export default function ProjectIndex() {
               >
                 <div className="work-panel-inner">
                   <p className="work-problem">{project.problem}</p>
+
+                  <ProjectDrawing project={project} />
 
                   <div className="work-detail">
                     <div>

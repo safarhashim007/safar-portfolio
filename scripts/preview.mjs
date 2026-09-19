@@ -13,7 +13,7 @@ import { execFileSync } from 'node:child_process'
 import { mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
-import { fileURLToPath, pathToFileURL } from 'node:url'
+import { fileURLToPath } from 'node:url'
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)))
 const work = join(root, '.smoke')
@@ -48,7 +48,7 @@ ${markup}
 <script type="module">
   // Reproduce what IdentityHero does each frame, for one fixed progress.
   const { nameFrame } = await import('./ringGeometry.js')
-  const { layoutTable } = await import('./table.js')
+  const { galleryPose } = await import('./gallery.js')
   const params = new URLSearchParams(location.search)
   const p = Number(params.get('p') ?? 0)
   // ?webgl=1 pretends the renderer is present, so the scroll composition can
@@ -93,30 +93,16 @@ ${markup}
 
   if (still) document.documentElement.dataset.mode = 'still'
 
-  // The studio table sizes itself from its own measured width, and picks a
-  // different composition below 700px. Without React running, the harness has
-  // to do both — otherwise every narrow screenshot shows the desktop layout
-  // squeezed, which is not a thing any visitor would see.
-  const table = document.querySelector('.art-table')
+  // A still of the same curved gallery geometry used by the live component.
+  const gallery = document.querySelector('.art-carousel')
   const prints = [...document.querySelectorAll('.art-print')]
-  if (table && prints.length) {
-    const aspects = prints.map((li) => {
-      if (li.querySelector('.art-print-mat--crop')) return 9 / 16
-      const img = li.querySelector('img')
-      return Number(img.getAttribute('width')) / Number(img.getAttribute('height'))
-    })
-    const layout = layoutTable(aspects, matchMedia('(max-width: 700px)').matches)
+  if (gallery && prints.length) {
+    const step = prints[0].offsetWidth + Math.max(18, Math.min(gallery.clientWidth * 0.024, 32))
     prints.forEach((li, i) => {
-      const place = layout.items[i]
-      li.style.setProperty('--x', place.x)
-      li.style.setProperty('--y', place.y)
-      li.style.setProperty('--w', place.w)
-      li.style.setProperty('--rot', place.rot)
-      li.style.setProperty('--z', place.z)
-      li.querySelector('.art-print-mat').style.aspectRatio = place.w + ' / ' + place.h
+      const pose = galleryPose(i, 0, prints.length, step, matchMedia('(prefers-reduced-motion: reduce)').matches)
+      li.style.visibility = Math.abs(pose.offset) < gallery.clientWidth / step / 2 + 1.5 ? 'visible' : 'hidden'
+      li.style.transform = 'translate(-50%, -50%) translate3d(' + pose.x + 'px,' + pose.y + 'px,' + pose.z + 'px) rotateY(' + pose.rotateY + 'deg) rotateZ(' + pose.rotateZ + 'deg)'
     })
-    table.style.height = 'calc(var(--tw) * ' + layout.height + ')'
-    table.style.setProperty('--tw', table.getBoundingClientRect().width + 'px')
   }
 
   // Reveal-on-scroll elements are shown, since there is no scrolling here.
@@ -132,7 +118,7 @@ writeFileSync(join(work, 'preview.html'), html)
 // The harness imports the same geometry the components use. One tsc call per
 // file, so the output lands flat beside preview.html rather than mirroring the
 // source tree.
-for (const file of ['src/webgl/ringGeometry.ts', 'src/lib/table.ts']) {
+for (const file of ['src/webgl/ringGeometry.ts', 'src/lib/gallery.ts']) {
   execFileSync(
     'node',
     [

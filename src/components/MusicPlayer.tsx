@@ -28,6 +28,8 @@ export default function MusicPlayer() {
   const frame = useRef(0)
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const budget = useRef(MAX_PLAY_MS)
+  /* Set by the auto-start effect; called the moment the visitor takes charge. */
+  const disarm = useRef(() => {})
   const since = useRef(0)
   const [playing, setPlaying] = useState(false)
 
@@ -77,6 +79,7 @@ export default function MusicPlayer() {
   }, [halt, ramp])
 
   const toggle = useCallback(() => {
+    disarm.current()
     if (playing) {
       halt()
       return
@@ -86,25 +89,28 @@ export default function MusicPlayer() {
   }, [begin, halt, playing])
 
   /* Sound is on by default, but no browser will take that on trust: a page
-     that has not been touched yet is refused, so the refusal arms the first
-     real gesture instead. Gestures on the control itself are left alone —
-     that click is the toggle's to answer. */
+     nobody has touched yet is refused, so the refusal waits for a real
+     gesture instead — and keeps waiting, because an attempt can be refused
+     more than once and a visitor who never gets sound has no way to know
+     why. Gestures on the control itself are left alone: that click is the
+     toggle's to answer, and the toggle disarms this the moment it is used,
+     so turning the sound off can never be undone by the next click. */
   useEffect(() => {
     const events = ['pointerdown', 'keydown', 'touchend'] as const
     const onGesture = (event: Event) => {
       if (root.current?.contains(event.target as Node)) return
-      disarm()
-      void begin().catch(() => {})
+      void begin().then(stop, () => {})
     }
-    const disarm = () => {
+    const stop = () => {
       for (const name of events) document.removeEventListener(name, onGesture)
     }
+    disarm.current = stop
 
-    void begin().then(disarm, () => {
+    void begin().then(stop, () => {
       for (const name of events) document.addEventListener(name, onGesture)
     })
 
-    return disarm
+    return stop
   }, [begin])
 
   /* The end of the page is the end of the piece. */
@@ -117,8 +123,9 @@ export default function MusicPlayer() {
         budget.current = 0
       }
     }
+    /* Deliberately not called once up front: arriving at the bottom ends the
+       piece, but opening a page the browser restored there should not. */
     window.addEventListener('scroll', onScroll, { passive: true })
-    onScroll()
     return () => window.removeEventListener('scroll', onScroll)
   }, [halt, playing])
 
@@ -133,7 +140,7 @@ export default function MusicPlayer() {
 
   return (
     <div className="music" ref={root}>
-      <audio ref={audio} src={SRC} loop preload="none" />
+      <audio ref={audio} src={SRC} loop preload="auto" />
       <button
         type="button"
         className="music-toggle readout"

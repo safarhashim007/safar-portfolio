@@ -188,14 +188,15 @@ check(
   frames.length === photoCount && frames.every((tag) => /data-reveal/.test(tag)),
 )
 
-// Each drawing carries its own place on the table.
+// All original drawings remain available in the carousel and full-size viewer.
 const prints = [...html.matchAll(/<li class="art-print"[^>]*>/g)].map((m) => m[0])
 check(
-  'every drawing is placed',
-  prints.length === artCount &&
-    prints.every((tag) => /--x:/.test(tag) && /--y:/.test(tag) && /--w:/.test(tag) && /--rot:/.test(tag)),
+  'every drawing is present',
+  prints.length === artCount,
 )
-check('drawings stack in order', prints.every((tag, i) => tag.includes(`--z:${i + 1}`) || tag.includes(`--z: ${i + 1}`)))
+check('gallery supports keyboard discovery', /class="art-carousel"[^>]*tabindex="0"/.test(html) && html.includes('id="art-instructions"'))
+check('every drawing can open', (html.match(/aria-label="Open drawing /g) ?? []).length === artCount)
+check('gallery announces the selected drawing', html.includes('aria-live="polite"') && html.includes('Selected drawing'))
 
 console.log(`rendered ${html.length} bytes of markup, ${images.length} images`)
 if (failures.length) {

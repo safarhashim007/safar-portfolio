@@ -17,6 +17,11 @@
   display: grid;
   gap: 1.5rem;
 }
+.contact-intro { font-size: clamp(1rem, 2vw, 1.4rem); color: var(--on-dark-soft); }
+.contact-invitation { display: flex; justify-content: space-between; align-items: center; gap: 1rem; font-size: clamp(3rem, 13vw, 12rem); min-height: 1.25em; }
+.contact-arrow { display: grid; place-items: center; width: 1.1em; height: 1.1em; flex-shrink: 0; border: 1px solid var(--on-dark-soft); border-radius: 50%; font-size: 0.65em; transition: transform 420ms var(--ease), background 420ms var(--ease), color 420ms var(--ease); }
+.contact-invitation:hover .contact-arrow { transform: rotate(45deg); background: var(--on-dark); color: var(--dark); }
+@media (prefers-reduced-motion: reduce) { .contact-arrow { transition: none; } }
 
 .contact-title {
   font-size: var(--t-display);

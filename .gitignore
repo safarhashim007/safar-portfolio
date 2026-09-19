@@ -31,3 +31,6 @@ assets-src/
 _removed/
 _to_delete-smoke/
 *.tgz
+.vercel
+.env*
+!.env.example

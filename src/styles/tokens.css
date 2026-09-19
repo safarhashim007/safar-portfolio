@@ -43,6 +43,12 @@
   /* type */
   --font: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
   --font-read: 'DM Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  /* The second line of a section title, set in italic serif: the one place
+     the site speaks in its own voice rather than its instrument's. It was
+     being asked for as bare Georgia, which does not exist on Android or on
+     most Linux, so half the visitors were getting an arbitrary serif — or
+     Archivo italic — instead of the intended one. */
+  --font-voice: Georgia, 'Iowan Old Style', 'Noto Serif', 'Times New Roman', serif;
 
   /* Two scales, deliberately far apart: a conventional reading scale, and one
      display size. Nothing in between, so a display moment cannot be diluted. */

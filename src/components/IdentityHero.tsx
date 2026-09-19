@@ -2,7 +2,7 @@ import { Suspense, lazy, useEffect, useRef, useState } from 'react'
 
 import { artworks } from '../data/artworks'
 import { media } from '../data/media'
-import { full } from '../lib/image'
+import { source } from '../lib/image'
 import { useCarouselDrag } from '../hooks/useCarouselDrag'
 import { useDeviceQuality } from '../hooks/useDeviceQuality'
 import { useScrollProgress } from '../hooks/useScrollProgress'
@@ -146,16 +146,24 @@ export default function IdentityHero() {
         ) : (
           /* No WebGL: the archive is still an archive, just a still one. */
           <div className="hero-still" aria-hidden="true">
-            {Array.from({ length: 6 }, (_, offset) => artworks[(selected + offset) % artworks.length]).map((item) => (
-              <img
-                key={item.id}
-                src={full('art', item.id)}
-                width={media.art[item.id]?.w}
-                height={media.art[item.id]?.h}
-                alt=""
-                loading="eager"
-              />
-            ))}
+            {Array.from(
+              { length: 6 },
+              (_, offset) => artworks[(selected + offset) % artworks.length],
+            ).map((item) => {
+              const image = source('art', item.id)
+              return (
+                <img
+                  key={item.id}
+                  src={image.src}
+                  srcSet={image.srcSet}
+                  sizes="(max-width: 900px) 30vw, 17vw"
+                  width={media.art[item.id]?.w}
+                  height={media.art[item.id]?.h}
+                  alt=""
+                  loading="eager"
+                />
+              )
+            })}
           </div>
         )}
 
@@ -170,6 +178,19 @@ export default function IdentityHero() {
             Kochi, India
             <span aria-hidden="true"> / </span>
             <span>2026</span>
+          </p>
+
+          {/* What is actually facing you. The drum turns on its own, so this
+              is deliberately not a live region: announcing a new line every
+              few seconds would make the page unusable with a screen reader,
+              and every drawing is named again in the archive below. */}
+          <p className="hero-readout">
+            <span className="hero-readout-title readout readout--live">
+              Artwork {artworks[selected]?.id}
+            </span>
+            <span className="hero-readout-note readout">
+              {artworks[selected]?.description}
+            </span>
           </p>
 
           <p className="hero-hint readout" aria-hidden="true">

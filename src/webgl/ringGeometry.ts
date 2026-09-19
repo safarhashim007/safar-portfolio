@@ -8,6 +8,18 @@
  * camera and measures how much of the name is actually occluded.
  */
 
+/* How wide a texture the drum asks the image ladder for.
+ *
+ * These live here rather than in the component because they are a claim about
+ * this geometry: a front card is drawn ~366 CSS px wide on a desktop viewport
+ * and ~231 on a phone, which at the DPR caps in useDeviceQuality is ~641 and
+ * ~312 device pixels. scripts/ring-check.mjs measures both by projecting the
+ * card corners below through the real camera, and fails if either target
+ * falls under what is drawn. Asking for the largest derivative instead would
+ * put 1600px textures on a 366px card. */
+export const DESKTOP_TEXTURE = 800
+export const COMPACT_TEXTURE = 400
+
 export const MAT_W = 0.7
 export const MAT_H = 1.14
 export const MAT_ASPECT = MAT_W / MAT_H

@@ -3,8 +3,7 @@
   background: var(--paper);
 }
 
-.work-head,
-.about-head {
+.work-head {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 0.75rem 2rem;
@@ -12,13 +11,11 @@
   padding-bottom: clamp(2.5rem, 7vh, 5rem);
 }
 
-.work-head > .readout:first-child,
-.about-head > .readout:first-child {
+.work-head > .readout:first-child {
   grid-column: 1 / -1;
 }
 
-.work-head h2,
-.about-head h2 {
+.work-head h2 {
   text-transform: uppercase;
 }
 
@@ -28,8 +25,7 @@
   color: var(--ink-soft);
 }
 
-.work-head-count,
-.about-head-count {
+.work-head-count {
   grid-column: 1 / -1;
   padding-top: 1rem;
   border-top: 1px solid var(--rule);
@@ -50,6 +46,7 @@
 }
 
 .work-row-button {
+  position: relative;
   width: 100%;
   display: grid;
   grid-template-columns: 3.5rem minmax(0, 1fr) auto 2rem;
@@ -57,6 +54,25 @@
   gap: 1.5rem;
   padding: clamp(1.25rem, 3vh, 2.25rem) 0;
   text-align: left;
+}
+
+.work-row-button::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--reg);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--t-mid) var(--ease);
+}
+
+.work-row-button:hover::before,
+.work-row-button:focus-visible::before,
+.is-open .work-row-button::before {
+  transform: scaleX(1);
 }
 
 .work-row-number {
@@ -139,6 +155,131 @@
   padding-bottom: 2rem;
 }
 
+/* An authored drawing for each system, made from the actual project flow.
+   It reads as a plate in the archive, without suggesting product screenshots
+   or results that do not exist. */
+.project-drawing {
+  grid-column: 2;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  margin: 0 0 clamp(2rem, 5vh, 3.5rem);
+  background: var(--paper-sunk);
+  border: 1px solid var(--rule);
+  opacity: 0;
+  transform: translateY(1.25rem);
+  transition:
+    opacity var(--t-slow) var(--ease),
+    transform var(--t-slow) var(--ease);
+}
+
+.is-open .project-drawing {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 120ms;
+}
+
+.project-drawing::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.18;
+  background-image:
+    linear-gradient(var(--rule) 1px, transparent 1px),
+    linear-gradient(90deg, var(--rule) 1px, transparent 1px);
+  background-size: 3rem 3rem;
+}
+
+.project-drawing-caption,
+.project-drawing-stages {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+}
+
+.project-drawing-caption {
+  border-bottom: 1px solid var(--rule);
+}
+
+.project-drawing-caption span:last-child {
+  color: var(--ink-soft);
+  text-align: right;
+}
+
+.project-drawing svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 24rem;
+  padding: clamp(1rem, 3vw, 2.5rem);
+  overflow: visible;
+  fill: none;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.project-drawing-muted {
+  stroke: var(--rule);
+}
+
+.project-drawing-ink {
+  stroke: var(--ink);
+}
+
+.project-drawing-accent {
+  stroke: var(--reg);
+  stroke-width: 2;
+}
+
+.project-drawing-solid {
+  fill: var(--reg);
+  stroke: none;
+}
+
+.project-drawing-trace {
+  opacity: 0;
+  transform: translateY(0.5rem);
+  transition:
+    opacity var(--t-slow) var(--ease),
+    transform var(--t-slow) var(--ease);
+}
+
+.is-open .project-drawing-trace {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 350ms;
+}
+
+.project-drawing-stages {
+  list-style: none;
+  margin: 0;
+  border-top: 1px solid var(--rule);
+}
+
+.project-drawing-stages li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.65rem;
+  width: 33.333%;
+  color: var(--ink);
+}
+
+.project-drawing-stages li:nth-child(2) {
+  justify-content: center;
+}
+
+.project-drawing-stages li:nth-child(3) {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.project-drawing-stages li span {
+  color: var(--ink-faint);
+}
+
 .work-detail {
   grid-column: 2;
   padding-bottom: clamp(1.5rem, 4vh, 3.5rem);
@@ -213,6 +354,20 @@
   text-transform: uppercase;
 }
 
+/* The source link's box is its text box — 18px tall on a phone, under the
+   24px a touch target needs. The hit area is extended with a pseudo-element
+   rather than with padding or a min-height, so the thumb gets something to
+   land on and the layout does not move a pixel. */
+.work-spec dd a {
+  position: relative;
+}
+
+.work-spec dd a::after {
+  content: '';
+  position: absolute;
+  inset: -0.75rem -0.5rem;
+}
+
 .work-archive-row a {
   min-height: 2.75rem;
   display: inline-flex;
@@ -225,8 +380,7 @@
 }
 
 @media (max-width: 900px) {
-  .work-head,
-  .about-head {
+  .work-head {
     grid-template-columns: 1fr;
   }
 
@@ -260,8 +414,32 @@
   }
 
   .work-problem,
+  .project-drawing,
   .work-detail {
     grid-column: 1;
+  }
+
+  .project-drawing-caption,
+  .project-drawing-stages {
+    padding: 0.875rem;
+  }
+
+  .project-drawing-caption span:last-child {
+    display: none;
+  }
+
+  .project-drawing svg {
+    padding: 0.75rem;
+  }
+
+  .project-drawing-stages {
+    gap: 0.5rem;
+    font-size: 0.625rem;
+  }
+
+  .project-drawing-stages li {
+    flex-direction: column;
+    gap: 0.25rem;
   }
 
   .work-archive-row {
@@ -275,5 +453,14 @@
 
   .work-archive-row > .readout:nth-of-type(3) {
     display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-drawing,
+  .project-drawing-trace,
+  .work-row-button::before {
+    transition-duration: 0.01ms;
+    transition-delay: 0ms;
   }
 }

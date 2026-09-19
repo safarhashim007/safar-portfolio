@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "lint": "oxlint",
     "media": "python3 scripts/build-media.py",
-    "check": "node scripts/smoke.mjs && node scripts/ring-check.mjs && node scripts/table-check.mjs && node scripts/music-check.mjs && node scripts/theme-check.mjs"
+    "check": "node scripts/smoke.mjs && node scripts/ring-check.mjs && node scripts/gallery-check.mjs && node scripts/music-check.mjs && node scripts/theme-check.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.8",

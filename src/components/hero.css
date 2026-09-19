@@ -77,7 +77,17 @@
   width: min(48%, 34rem);
   height: clamp(9rem, 26vh, 15rem);
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  /* The band's columns are made by the images that are actually shown, not
+     declared separately from them. Three rules used to set a count and three
+     others set which images display, and at two widths they disagreed — the
+     band drew four images across six columns and left a third of itself
+     empty. A track per visible image cannot be wrong. */
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  /* One row, as tall as the band itself. Without a definite row the images
+     fall back to their intrinsic height and spill out of the band onto
+     whatever is below it. */
+  grid-template-rows: 100%;
   gap: 0.5rem;
 }
 
@@ -139,7 +149,7 @@
   letter-spacing: 0.04em;
 }
 
-.hero-readout-medium {
+.hero-readout-note {
   color: var(--ink-soft);
 }
 
@@ -210,15 +220,10 @@
     width: auto;
     bottom: 22%;
     height: clamp(7rem, 18vh, 11rem);
-    grid-template-columns: repeat(3, 1fr);
   }
 
   .hero-still img:nth-child(n + 4) {
     display: none;
-  }
-
-  .hero--still .hero-still {
-    grid-template-columns: repeat(3, 1fr);
   }
 
   .hero-hint {
@@ -279,7 +284,15 @@
   order: 4;
   width: 100%;
   height: clamp(8rem, 24vh, 15rem);
-  grid-template-columns: repeat(6, 1fr);
+}
+
+/* The four-up rule above is for the animated layout's narrow well. Full
+   width, the band is six across — without this it declared six columns and
+   filled four, leaving a third of itself empty. */
+@media (min-width: 901px) {
+  .hero--still .hero-still img {
+    display: block;
+  }
 }
 
 /* the frame's children become items of the stage's own grid */

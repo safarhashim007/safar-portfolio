@@ -16,10 +16,20 @@
 }
 
 .nav-mark {
+  /* Same reason as the source links: the wordmark is a 20px-tall link in a
+     fixed bar, and a pseudo-element gives it a thumb-sized hit area without
+     changing where a single pixel of the bar sits. */
+  position: relative;
   font-size: 0.8125rem;
   font-weight: 600;
   letter-spacing: -0.02em;
   text-transform: uppercase;
+}
+
+.nav-mark::after {
+  content: '';
+  position: absolute;
+  inset: -0.75rem -0.5rem;
 }
 
 .nav-mark span[aria-hidden] {

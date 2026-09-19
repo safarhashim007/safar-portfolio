@@ -1,0 +1,7 @@
+# Safar Hashim — portfolio
+# One public page; nothing here is private and nothing needs hiding.
+
+User-agent: *
+Allow: /
+
+Sitemap: https://ssaff666.in/sitemap.xml
