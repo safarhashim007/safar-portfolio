@@ -14,6 +14,9 @@ import { COMPACT_TEXTURE, DESKTOP_TEXTURE } from '../webgl/ringGeometry'
    little out only skews the bar, never the wait. */
 const RENDERER_BYTES = 880_000
 
+/** How many drawings the still hero puts on screen. Matches IdentityHero. */
+const STILL_COUNT = 6
+
 import './loading.css'
 
 /**
@@ -41,9 +44,15 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
   const [loaded, setLoaded] = useState(0)
   const [total, setTotal] = useState(0)
   const quality = useDeviceQuality()
+  const count = quality.webgl && !quality.reduced ? artworks.length : STILL_COUNT
   const door = useRef<HTMLButtonElement>(null)
 
   const dismiss = useCallback(() => setLeaving(true), [])
+
+  /* The door is on screen now, so the pre-boot shell in index.html can go. */
+  useEffect(() => {
+    document.getElementById('boot')?.remove()
+  }, [])
 
   // ---- the work ---------------------------------------------------------
   useEffect(() => {
@@ -57,6 +66,14 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
     const overflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
 
+    /* Reduced motion and a machine without WebGL both get the still hero,
+       which shows six drawings as ordinary images and never builds a drum.
+       Waiting on the renderer and twenty textures there meant asking those
+       visitors — the ones least served by a long wait — to sit through
+       4.8 MB they would never see. */
+    const drum = quality.webgl && !quality.reduced
+    const ids = drum ? artworks : artworks.slice(0, STILL_COUNT)
+
     /* The same width the drum will ask for, chosen by the same rule, so
        these are cache hits rather than a second download. */
     const width = quality.low ? COMPACT_TEXTURE : DESKTOP_TEXTURE
@@ -67,8 +84,8 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
        exact — build-media.py records them — so the only estimate here is the
        chunk. */
     const total =
-      RENDERER_BYTES +
-      artworks.reduce((sum, art) => sum + (media.art[art.id]?.bytes[rung('art', art.id, width)] ?? 0), 0)
+      (drum ? RENDERER_BYTES : 0) +
+      ids.reduce((sum, art) => sum + (media.art[art.id]?.bytes[rung('art', art.id, width)] ?? 0), 0)
 
     const advance = (bytes: number) => {
       if (!cancelled) setLoaded((n) => n + bytes)
@@ -77,11 +94,13 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
     /* Pulling the renderer here does two jobs: it is counted, and it is in
        cache by the time the hero mounts, so the drum no longer starts
        downloading after the visitor has been let in. */
-    const renderer = import('../webgl/ArchiveRing')
-      .catch(() => {})
-      .finally(() => advance(RENDERER_BYTES))
+    const renderer = drum
+      ? import('../webgl/ArchiveRing')
+          .catch(() => {})
+          .finally(() => advance(RENDERER_BYTES))
+      : Promise.resolve()
 
-    const images = artworks.map((art) => {
+    const images = ids.map((art) => {
       const image = new Image()
       image.src = pick('art', art.id, width)
       return image
@@ -113,7 +132,7 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
       timers.forEach(clearTimeout)
       document.body.style.overflow = overflow
     }
-  }, [quality.low])
+  }, [quality.low, quality.webgl, quality.reduced])
 
   // ---- the invitation ---------------------------------------------------
   useEffect(() => {
@@ -176,7 +195,7 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
             ? 'Enter'
             : total && loaded < RENDERER_BYTES
               ? 'Loading renderer'
-              : `Loading ${String(done).padStart(2, '0')} / ${artworks.length}`}
+              : `Loading ${String(done).padStart(2, '0')} / ${count}`}
         </span>
         <span aria-hidden="true">Kochi, India</span>
       </span>

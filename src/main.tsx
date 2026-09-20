@@ -11,6 +11,7 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>,
 )
 
-/* The pre-boot shell in index.html has done its job the moment React has
-   painted the real door over it. */
-document.getElementById('boot')?.remove()
+/* The shell in index.html is removed by the door itself, once the door has
+   painted. Removing it here would be two frames too early: render() only
+   schedules the work, so the shell would go while React had still committed
+   nothing — a blank flash in the one place that exists to prevent one. */
