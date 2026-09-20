@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react'
 
 import { artworks } from '../data/artworks'
 import { useDeviceQuality } from '../hooks/useDeviceQuality'
@@ -107,6 +107,10 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
       type="button"
       ref={door}
       className="loading-screen"
+      /* The share of the first screen that has arrived, 0 to 1. The rule
+         along the foot is drawn from it, so the bar and the count are two
+         readings of one number rather than two things kept in step. */
+      style={{ '--load': ready ? 1 : done / artworks.length } as CSSProperties}
       data-leaving={leaving}
       data-ready={ready || undefined}
       data-lenis-prevent
