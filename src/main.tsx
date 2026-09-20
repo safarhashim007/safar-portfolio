@@ -10,3 +10,7 @@ createRoot(document.getElementById('root')!).render(
     <App />
   </StrictMode>,
 )
+
+/* The pre-boot shell in index.html has done its job the moment React has
+   painted the real door over it. */
+document.getElementById('boot')?.remove()

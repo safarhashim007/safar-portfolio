@@ -70,6 +70,82 @@
     />
   </head>
   <body>
+    <!--
+      The door itself is a React component, so it cannot paint until the
+      bundle has downloaded, parsed and mounted. Until then the page was
+      simply blank, which on a slow connection is the exact thing the door
+      exists to prevent. This is the same ground and the same furniture,
+      written into the HTML so it is on screen in the first paint, with no
+      stylesheet and no script of its own. main.tsx removes it once React
+      has rendered.
+    -->
+    <div id="boot" aria-hidden="true">
+      <div class="boot-rail"><span>SSAFF.666</span><span>PORTFOLIO / 2026</span></div>
+      <div class="boot-name">SAFAR<br />HASHIM</div>
+      <div class="boot-rail"><span>LOADING</span><span>KOCHI, INDIA</span></div>
+    </div>
+    <style>
+      #boot {
+        position: fixed;
+        inset: 0;
+        z-index: 99;
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        padding: 1.5rem clamp(1.125rem, 3.4vw, 3rem);
+        background: #e6e4de;
+        color: #16171a;
+        font-family: 'Helvetica Neue', Arial, sans-serif;
+      }
+
+      :root[data-theme='dark'] #boot {
+        background: #16171a;
+        color: #e6e4de;
+      }
+
+      .boot-rail {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        font-size: 0.6875rem;
+        letter-spacing: 0.09em;
+        font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+        color: #5d5e58;
+      }
+
+      :root[data-theme='dark'] .boot-rail {
+        color: #94958d;
+      }
+
+      .boot-rail:first-child {
+        padding-bottom: 1.25rem;
+        border-bottom: 1px solid #c5c3b8;
+      }
+
+      .boot-rail:last-child {
+        padding-top: 1.25rem;
+        border-top: 1px solid #c5c3b8;
+      }
+
+      :root[data-theme='dark'] .boot-rail:first-child,
+      :root[data-theme='dark'] .boot-rail:last-child {
+        border-color: #31323a;
+      }
+
+      .boot-rail:first-child span:first-child {
+        color: inherit;
+        font-weight: 600;
+      }
+
+      .boot-name {
+        align-self: center;
+        justify-self: center;
+        text-align: center;
+        font-size: clamp(4rem, 12vw, 10rem);
+        font-weight: 700;
+        line-height: 0.82;
+        letter-spacing: -0.065em;
+      }
+    </style>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
