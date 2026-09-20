@@ -44,7 +44,11 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
   const [loaded, setLoaded] = useState(0)
   const [total, setTotal] = useState(0)
   const quality = useDeviceQuality()
-  const count = quality.webgl && !quality.reduced ? artworks.length : STILL_COUNT
+  /* Reduced motion and a machine without WebGL both get the still hero,
+     which shows six drawings as ordinary images and never builds a drum.
+     The door waits on whichever hero the visitor is about to see. */
+  const drum = quality.webgl && !quality.reduced
+  const count = drum ? artworks.length : STILL_COUNT
   const door = useRef<HTMLButtonElement>(null)
 
   const dismiss = useCallback(() => setLeaving(true), [])
@@ -66,12 +70,9 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
     const overflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
 
-    /* Reduced motion and a machine without WebGL both get the still hero,
-       which shows six drawings as ordinary images and never builds a drum.
-       Waiting on the renderer and twenty textures there meant asking those
-       visitors — the ones least served by a long wait — to sit through
-       4.8 MB they would never see. */
-    const drum = quality.webgl && !quality.reduced
+    /* Waiting on the renderer and twenty textures without a drum meant
+       asking those visitors — the ones least served by a long wait — to sit
+       through 4.8 MB they would never see. */
     const ids = drum ? artworks : artworks.slice(0, STILL_COUNT)
 
     /* The same width the drum will ask for, chosen by the same rule, so
@@ -132,7 +133,7 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
       timers.forEach(clearTimeout)
       document.body.style.overflow = overflow
     }
-  }, [quality.low, quality.webgl, quality.reduced])
+  }, [drum, quality.low])
 
   // ---- the invitation ---------------------------------------------------
   useEffect(() => {
@@ -190,12 +191,15 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
       </span>
 
       <span className="loading-bottom readout">
-        <span className="loading-status" aria-live="polite">
+        {/* No live region: the count ticks once per drawing, and announcing
+            twenty of them is noise. The door takes focus the moment it opens,
+            and focus announces its label. */}
+        <span className="loading-status">
           {ready
             ? 'Enter'
-            : total && loaded < RENDERER_BYTES
+            : drum && loaded < RENDERER_BYTES
               ? 'Loading renderer'
-              : `Loading ${String(done).padStart(2, '0')} / ${count}`}
+              : `Loading ${String(done).padStart(2, '0')} / ${String(count).padStart(2, '0')}`}
         </span>
         <span aria-hidden="true">Kochi, India</span>
       </span>
