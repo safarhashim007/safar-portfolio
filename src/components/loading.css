@@ -27,9 +27,13 @@
   color: var(--reg);
 }
 
+/* No focus ring on the door. It is the only focusable thing on screen, so a
+   ring distinguishes it from nothing — and because the door takes focus by
+   itself the moment it is ready, the browser drew that ring as a blue frame
+   around the whole screen on an ordinary visit. Focus still lands here, so
+   Enter and Space still open it. */
 .loading-screen:focus-visible {
-  outline: 2px solid var(--reg);
-  outline-offset: -6px;
+  outline: none;
 }
 .loading-screen[data-leaving='true'] { transform: translateY(-100%); }
 .loading-top, .loading-bottom {
