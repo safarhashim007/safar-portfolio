@@ -126,19 +126,19 @@ export default function ProjectIndex() {
                       </div>
                     </dl>
 
-                    {project.people && (
-                      <p className="readout work-people">
-                        {project.people.map((person, i) => (
-                          <span key={person.name}>
+                    {project.credits && (
+                      <p className="readout work-credits">
+                        {project.credits.map((credit, i) => (
+                          <span key={credit.name}>
                             {i > 0 && <span aria-hidden="true"> · </span>}
-                            <span className="work-people-role">{person.role}</span>{' '}
-                            {person.url ? (
-                              <a href={person.url} target="_blank" rel="noreferrer">
-                                {person.name}
+                            <span className="work-credits-role">{credit.role}</span>{' '}
+                            {credit.url ? (
+                              <a href={credit.url} target="_blank" rel="noreferrer">
+                                {credit.name}
                                 <span aria-hidden="true"> ↗</span>
                               </a>
                             ) : (
-                              person.name
+                              credit.name
                             )}
                           </span>
                         ))}

@@ -17,11 +17,12 @@ export interface Project {
   state: string
   repo: string | null
   /**
-   * Who made it, where that needs saying: a role this project was not built
-   * alone, or a role that is not obvious from the site being mine. Left off
-   * everywhere it would only restate the obvious.
+   * Provenance, where it needs saying: a hand this project was not built
+   * alone by, a role that is not obvious from the site being mine, or the
+   * work it was forked from. Left off everywhere it would only restate the
+   * obvious.
    */
-  people?: { role: string; name: string; url?: string }[]
+  credits?: { role: string; name: string; url?: string }[]
 }
 
 export const projects: Project[] = [
@@ -40,7 +41,7 @@ export const projects: Project[] = [
     stack: 'PYTHON / PYTORCH / OPENCV / ROMA',
     state: 'Matching and evaluation pipeline running against paired imagery; benchmarks and failure cases are still being written up.',
     repo: 'https://github.com/safarhashim007/Chandra',
-    people: [{ role: 'Contributions', name: 'hxr4', url: 'https://github.com/hxr4' }],
+    credits: [{ role: 'Contributions', name: 'hxr4', url: 'https://github.com/hxr4' }],
   },
   {
     number: '02',
@@ -57,7 +58,7 @@ export const projects: Project[] = [
     stack: 'ANDROID / KOTLIN / AI',
     state: 'Unreleased and incomplete. Core flows are being built; nothing here is shipped, and no figures shown are from a live product.',
     repo: null,
-    people: [
+    credits: [
       { role: 'Founder', name: 'Safar Hashim' },
       { role: 'Contributions', name: 'hxr4', url: 'https://github.com/hxr4' },
     ],
@@ -77,6 +78,13 @@ export const projects: Project[] = [
     stack: 'PYTHON / DATA / ML',
     state: 'Working analysis and models over collected datasets.',
     repo: 'https://github.com/safarhashim007/lumira-solar-ai',
+    credits: [
+      {
+        role: 'Forked from',
+        name: 'danish-naj/lumira-solar-ai',
+        url: 'https://github.com/danish-naj/lumira-solar-ai',
+      },
+    ],
   },
   {
     number: '04',
