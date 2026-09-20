@@ -466,7 +466,7 @@ export const media: Record<'art' | 'photo', Record<string, MediaEntry>> =
       },
       "29": {
         "bytes": {
-          "640": 0
+          "640": 159596
         },
         "h": 1280,
         "w": 720,

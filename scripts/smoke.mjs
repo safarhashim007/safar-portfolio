@@ -198,6 +198,12 @@ check('gallery supports keyboard discovery', /class="art-carousel"[^>]*tabindex=
 check('every drawing can open', (html.match(/aria-label="Open drawing /g) ?? []).length === artCount)
 check('gallery announces the selected drawing', html.includes('aria-live="polite"') && html.includes('Selected drawing'))
 
+/* A derivative that exists but is empty is worse than a missing one: nothing
+   complains, and the photograph simply never appears. 29-640.webp shipped that
+   way — build-media skipped it forever because it was newer than its master. */
+const empty = walk(join(root, 'public/images')).filter((f) => statSync(f).size === 0)
+check(`no image is empty${empty.length ? ': ' + empty.map((f) => relative(root, f)).join(', ') : ''}`, empty.length === 0)
+
 console.log(`rendered ${html.length} bytes of markup, ${images.length} images`)
 if (failures.length) {
   console.error('\nFAILED:')

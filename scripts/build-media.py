@@ -73,7 +73,11 @@ def derive(source: Path, out_dir: Path, key: str, widths: tuple[int, ...], rotat
         for width in rungs:
             target = out_dir / f"{key}-{width}.webp"
             newest = max(source.stat().st_mtime, Path(__file__).stat().st_mtime)
-            if target.exists() and target.stat().st_mtime > newest:
+            # Size as well as mtime, because mtime alone trusted a write that
+            # never finished: a run interrupted mid-encode left 29-640.webp at
+            # zero bytes and newer than its master, so every later run skipped
+            # it and the sixteenth photograph shipped empty.
+            if target.exists() and target.stat().st_size and target.stat().st_mtime > newest:
                 continue
             copy = image.copy()
             copy.thumbnail((width, full_h), Image.LANCZOS)
