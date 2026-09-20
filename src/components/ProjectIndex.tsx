@@ -125,6 +125,25 @@ export default function ProjectIndex() {
                         </dd>
                       </div>
                     </dl>
+
+                    {project.people && (
+                      <p className="readout work-people">
+                        {project.people.map((person, i) => (
+                          <span key={person.name}>
+                            {i > 0 && <span aria-hidden="true"> · </span>}
+                            <span className="work-people-role">{person.role}</span>{' '}
+                            {person.url ? (
+                              <a href={person.url} target="_blank" rel="noreferrer">
+                                {person.name}
+                                <span aria-hidden="true"> ↗</span>
+                              </a>
+                            ) : (
+                              person.name
+                            )}
+                          </span>
+                        ))}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>

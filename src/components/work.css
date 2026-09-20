@@ -321,6 +321,30 @@
   border-color: var(--ink);
 }
 
+/* Who else built it. A single line under the spec rather than a fourth cell,
+   because four items in a three-column grid leaves one stranded on a row of
+   its own and reads as a mistake. */
+.work-people {
+  grid-column: 1 / -1;
+  padding-top: 0.75rem;
+  color: var(--ink-soft);
+}
+
+.work-people-role {
+  color: var(--ink-faint);
+}
+
+.work-people a {
+  color: var(--ink);
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 0.125rem;
+  transition: border-color var(--t-fast) var(--ease);
+}
+
+.work-people a:hover {
+  border-color: var(--ink);
+}
+
 /* ---- archive -------------------------------------------------------- */
 
 .work-archive {
