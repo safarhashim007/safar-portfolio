@@ -48,13 +48,21 @@ export function thumb(role: Role, id: string): string {
 }
 
 /**
+ * The rung `pick` would choose. Split out so the loading screen can look up
+ * that file's byte size without parsing the URL it is about to request.
+ */
+export function rung(role: Role, id: string, target: number): number {
+  const entry = media[role][id]
+  if (!entry) return 0
+  return entry.widths.find((w) => w >= target) ?? entry.widths[entry.widths.length - 1]
+}
+
+/**
  * The smallest derivative that is at least `target` wide, or the widest one
  * that exists. Used for WebGL textures, where there is no srcSet to let the
  * browser choose.
  */
 export function pick(role: Role, id: string, target: number): string {
-  const entry = media[role][id]
-  if (!entry) return ''
-  const width = entry.widths.find((w) => w >= target) ?? entry.widths[entry.widths.length - 1]
-  return `/images/${role}/${id}-${width}.webp`
+  const width = rung(role, id, target)
+  return width ? `/images/${role}/${id}-${width}.webp` : ''
 }

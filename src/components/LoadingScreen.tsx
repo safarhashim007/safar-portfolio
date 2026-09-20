@@ -1,9 +1,18 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react'
 
 import { artworks } from '../data/artworks'
+import { media } from '../data/media'
 import { useDeviceQuality } from '../hooks/useDeviceQuality'
-import { pick } from '../lib/image'
+import { pick, rung } from '../lib/image'
 import { COMPACT_TEXTURE, DESKTOP_TEXTURE } from '../webgl/ringGeometry'
+
+/* The renderer chunk — three, R3F and drei — as built. It is the single
+   largest thing the first screen needs, bigger than the rest of the bundle
+   put together, and until now it was neither counted nor fetched until
+   after the door had already opened. Re-measure with
+   `ls -l dist/assets/ArchiveRing-*.js` if the dependencies change; being a
+   little out only skews the bar, never the wait. */
+const RENDERER_BYTES = 880_000
 
 import './loading.css'
 
@@ -29,6 +38,8 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
   const [ready, setReady] = useState(false)
   const [leaving, setLeaving] = useState(false)
   const [done, setDone] = useState(0)
+  const [loaded, setLoaded] = useState(0)
+  const [total, setTotal] = useState(0)
   const quality = useDeviceQuality()
   const door = useRef<HTMLButtonElement>(null)
 
@@ -49,6 +60,27 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
     /* The same width the drum will ask for, chosen by the same rule, so
        these are cache hits rather than a second download. */
     const width = quality.low ? COMPACT_TEXTURE : DESKTOP_TEXTURE
+
+    /* Weigh the wait in bytes, because the parts are nothing like equal: a
+       2 MB photograph and a 60 KB one are not one file each, and the
+       renderer alone outweighs a third of the drawings. The image sizes are
+       exact — build-media.py records them — so the only estimate here is the
+       chunk. */
+    const total =
+      RENDERER_BYTES +
+      artworks.reduce((sum, art) => sum + (media.art[art.id]?.bytes[rung('art', art.id, width)] ?? 0), 0)
+
+    const advance = (bytes: number) => {
+      if (!cancelled) setLoaded((n) => n + bytes)
+    }
+
+    /* Pulling the renderer here does two jobs: it is counted, and it is in
+       cache by the time the hero mounts, so the drum no longer starts
+       downloading after the visitor has been let in. */
+    const renderer = import('../webgl/ArchiveRing')
+      .catch(() => {})
+      .finally(() => advance(RENDERER_BYTES))
+
     const images = artworks.map((art) => {
       const image = new Image()
       image.src = pick('art', art.id, width)
@@ -57,14 +89,20 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
         .catch(() => {})
         .finally(() => {
           if (!cancelled) setDone((n) => n + 1)
+          advance(media.art[art.id]?.bytes[rung('art', art.id, width)] ?? 0)
         })
     })
+
+    setTotal(total)
 
     /* Long enough for the whole first screen on a real connection, short
        enough that a stalled asset cannot hold the door shut. The old cap was
        2.5s, which the drum's textures never once beat. */
     void Promise.all([
-      Promise.race([Promise.allSettled([document.fonts.ready, ...images]), delay(15000)]),
+      Promise.race([
+        Promise.allSettled([document.fonts.ready, renderer, ...images]),
+        delay(15000),
+      ]),
       delay(reduced ? 0 : 850),
     ]).then(() => {
       if (!cancelled) setReady(true)
@@ -110,7 +148,7 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
       /* The share of the first screen that has arrived, 0 to 1. The rule
          along the foot is drawn from it, so the bar and the count are two
          readings of one number rather than two things kept in step. */
-      style={{ '--load': ready ? 1 : done / artworks.length } as CSSProperties}
+      style={{ '--load': ready ? 1 : total ? Math.min(1, loaded / total) : 0 } as CSSProperties}
       data-leaving={leaving}
       data-ready={ready || undefined}
       data-lenis-prevent
@@ -134,7 +172,11 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
 
       <span className="loading-bottom readout">
         <span className="loading-status" aria-live="polite">
-          {ready ? 'Enter' : `Loading ${String(done).padStart(2, '0')} / ${artworks.length}`}
+          {ready
+            ? 'Enter'
+            : total && loaded < RENDERER_BYTES
+              ? 'Loading renderer'
+              : `Loading ${String(done).padStart(2, '0')} / ${artworks.length}`}
         </span>
         <span aria-hidden="true">Kochi, India</span>
       </span>
