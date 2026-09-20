@@ -86,6 +86,8 @@ src/
 
 One WebGL context in the whole site — the hero drum — stopped when it scrolls
 out of view and loaded lazily so the document and the name paint first. The
-photography moves with scrolling; the drawing carousel uses CSS transforms,
-pointer momentum and keyboard navigation. Its frame loop stops when settled.
+photography moves with scrolling; the drawing gallery stays pinned while vertical
+scrolling advances through all 20 works, then releases into photography. Horizontal
+dragging and keyboard navigation stay synchronized with that scroll position.
+Its CSS transform frame loop stops when settled.
 Everything readable is HTML, and the site works with no WebGL at all.

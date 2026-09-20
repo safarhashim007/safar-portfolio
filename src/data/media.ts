@@ -189,15 +189,6 @@ export const media: Record<'art' | 'photo', Record<string, MediaEntry>> =
           2000
         ]
       },
-      "06": {
-        "h": 4000,
-        "w": 2250,
-        "widths": [
-          640,
-          1280,
-          2000
-        ]
-      },
       "10": {
         "h": 2252,
         "w": 4000,
@@ -216,30 +207,12 @@ export const media: Record<'art' | 'photo', Record<string, MediaEntry>> =
           2000
         ]
       },
-      "13": {
-        "h": 4032,
-        "w": 2268,
-        "widths": [
-          640,
-          1280,
-          2000
-        ]
-      },
       "15": {
         "h": 1920,
         "w": 1080,
         "widths": [
           640,
           1080
-        ]
-      },
-      "16": {
-        "h": 4032,
-        "w": 2268,
-        "widths": [
-          640,
-          1280,
-          2000
         ]
       },
       "17": {
@@ -366,15 +339,6 @@ export const media: Record<'art' | 'photo', Record<string, MediaEntry>> =
         "w": 720,
         "widths": [
           640
-        ]
-      },
-      "35": {
-        "h": 3342,
-        "w": 1882,
-        "widths": [
-          640,
-          1280,
-          1882
         ]
       }
     }

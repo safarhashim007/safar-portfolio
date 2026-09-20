@@ -9,6 +9,7 @@ import ArtworkViewer from './components/ArtworkViewer'
 import Contact from './components/Contact'
 import IdentityHero from './components/IdentityHero'
 import Nav from './components/Nav'
+import Pointer from './components/Pointer'
 import LoadingScreen from './components/LoadingScreen'
 import PhotoGallery from './components/PhotoGallery'
 import ProjectIndex from './components/ProjectIndex'
@@ -37,6 +38,8 @@ export default function App() {
       </main>
 
       <Contact />
+
+      <Pointer />
 
       <ArtworkViewer
         index={artwork}

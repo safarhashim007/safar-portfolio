@@ -14,6 +14,11 @@ export default function SmoothScroll() {
     if (matchMedia('(pointer: coarse)').matches) return
 
     const lenis = new Lenis({ duration: 1.05, smoothWheel: true, anchors: true })
+    const galleryNavigate = (event: Event) => {
+      event.preventDefault()
+      lenis.scrollTo((event as CustomEvent<number>).detail, { immediate: true, force: true })
+    }
+    window.addEventListener('gallery:navigate', galleryNavigate)
     let frame = 0
 
     const raf = (time: number) => {
@@ -25,6 +30,7 @@ export default function SmoothScroll() {
 
     return () => {
       cancelAnimationFrame(frame)
+      window.removeEventListener('gallery:navigate', galleryNavigate)
       lenis.destroy()
     }
   }, [])

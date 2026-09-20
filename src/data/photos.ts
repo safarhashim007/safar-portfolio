@@ -6,11 +6,9 @@ export interface Photo {
 
 export const photos: Photo[] = [
   { id: '04', description: 'Harbour cranes in the last light of day.', year: '2025' },
-  { id: '06', description: 'A yellow wall glimpsed through wet leaves.', year: '2025' },
   { id: '10', description: 'A lit room seen through evening foliage.', year: '2024' },
   { id: '11', description: 'A narrow band of sunset beyond the rocks.', year: '2026' },
   { id: '15', description: 'A visitor in yellow before the waterfall.', year: '2025' },
-  { id: '16', description: 'A rider paused beside dark water.', year: '2025' },
   { id: '17', description: 'Harbour rigging against a warm sky.', year: '2025' },
   { id: '18', description: 'A pink evening above the waterfront.', year: '2025' },
   { id: '19', description: 'A small boat crossing the water at dusk.', year: '2025' },
@@ -27,5 +25,4 @@ export const photos: Photo[] = [
   { id: '32', description: 'A singer against blurred stage lights.', year: '2026' },
   { id: '33', description: 'Performers gathered beneath the spotlights.', year: '2026' },
   { id: '34', description: 'A purple sunset framed by a car window.', year: '2026' },
-  { id: '35', description: 'A burger place glowing beside an empty road at night.', year: '2026' },
 ]

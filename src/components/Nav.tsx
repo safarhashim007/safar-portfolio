@@ -48,8 +48,8 @@ export default function Nav() {
 
       <header className="nav">
         <a className="nav-mark" href="#home">
-          Safar <span aria-hidden="true">©26</span>
-          <span className="visually-hidden">Hashim, 2026 — back to top</span>
+          ssaff<span aria-hidden="true">.666</span>
+          <span className="visually-hidden">.666 — back to top</span>
         </a>
 
         <div className="nav-controls">

@@ -1,0 +1,47 @@
+/*
+ * A small solid dot that inverts whatever is under it.
+ *
+ * Pure white under difference blending is an exact photographic negative of
+ * the backdrop: near-black on paper, near-white on ink, and the complement
+ * of a photograph while it crosses one. One dot, no second colour, no plate,
+ * legible everywhere by construction.
+ *
+ * One size, always. It does not answer hovers or presses — the elements
+ * themselves already do that, and a dot that swells over every link turns a
+ * page of links into a flickering thing.
+ */
+.pointer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 200;
+  width: 0.8125rem;
+  height: 0.8125rem;
+  border-radius: 50%;
+  background: #fff;
+  mix-blend-mode: difference;
+  opacity: 0;
+  /* Never in the way of a click, a selection or a hover. */
+  pointer-events: none;
+  transition: opacity var(--t-mid) var(--ease);
+}
+
+.pointer[data-on='true'] {
+  opacity: 1;
+}
+
+/* The dot is an addition, not a replacement: the native cursor stays, so
+   text still shows a caret, a photograph still shows zoom-in, and nothing
+   about the site becomes harder to use if this fails to paint. */
+
+@media (prefers-reduced-motion: reduce) {
+  .pointer {
+    transition: none;
+  }
+}
+
+@media (pointer: coarse) {
+  .pointer {
+    display: none;
+  }
+}

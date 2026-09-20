@@ -1,5 +1,10 @@
 export const wrapGalleryIndex = (value: number, count: number) => ((value % count) + count) % count
 
+/** The vertical journey has a beginning and end, even though the visual arc wraps. */
+export function galleryScrollPosition(scrolled: number, travel: number, count: number) {
+  return Math.max(0, Math.min(1, scrolled / Math.max(1, travel))) * Math.max(0, count - 1)
+}
+
 /** Wrap at the back of the loop, beyond the visible arc, so no visible card jumps. */
 export function galleryPose(index: number, position: number, count: number, step: number, reduced = false) {
   const offset = wrapGalleryIndex(index - position + count / 2, count) - count / 2

@@ -95,9 +95,13 @@
   scrollbar-width: thin;
 }
 
+/* A fixed portrait slot cropped every landscape frame in half to fill it.
+   The slot now takes its width from the picture instead: one height for the
+   whole strip, each thumbnail its own shape, nothing cut. */
 .viewer-strip ol button {
   display: block;
-  width: 2.5rem;
+  flex: 0 0 auto;
+  width: auto;
   height: 3.25rem;
   padding: 0.125rem;
   border: 1px solid transparent;
@@ -107,7 +111,7 @@
 
 .viewer-strip ol button:hover { opacity: 0.8; transform: translateY(-0.2rem); }
 .viewer-strip ol button[aria-current='true'] { opacity: 1; border-color: var(--reg); }
-.viewer-strip ol img { width: 100%; height: 100%; object-fit: cover; }
+.viewer-strip ol img { width: auto; height: 100%; object-fit: contain; }
 
 @keyframes viewer-enter {
   from { opacity: 0; transform: translateY(0.75rem) scale(0.985); }

@@ -12,7 +12,16 @@ writeFileSync(join(work, 'package.json'), '{"type":"module"}')
 execFileSync('node', [join(root, 'node_modules/typescript/bin/tsc'),
   join(root, 'src/lib/gallery.ts'), '--outDir', work, '--module', 'esnext',
   '--target', 'es2022', '--moduleResolution', 'bundler', '--ignoreConfig'], { cwd: work, stdio: 'inherit' })
-const { galleryPose, wrapGalleryIndex } = await import(pathToFileURL(join(work, 'gallery.js')))
+const { galleryPose, galleryScrollPosition, wrapGalleryIndex } = await import(pathToFileURL(join(work, 'gallery.js')))
+
+for (const travel of [3420, 5130, 6080]) {
+  assert.equal(galleryScrollPosition(-500, travel, 20), 0, 'gallery starts on first drawing')
+  for (let i = 0; i < 20; i += 1) {
+    assert.ok(Math.abs(galleryScrollPosition(i / 19 * travel, travel, 20) - i) < 0.00001, 'vertical scrolling must reach every drawing in order')
+  }
+  assert.equal(galleryScrollPosition(travel, travel, 20), 19, 'last drawing reached before release')
+  assert.equal(galleryScrollPosition(travel + 500, travel, 20), 19, 'final drawing stays visible while exiting')
+}
 
 for (const step of [210, 280, 360]) {
   for (let position = -60; position <= 60; position += 1) {

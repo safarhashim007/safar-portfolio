@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useMediaQuery } from './useMediaQuery'
-import { galleryPose, wrapGalleryIndex as wrap } from '../lib/gallery'
+import { galleryPose, galleryScrollPosition, wrapGalleryIndex as wrap } from '../lib/gallery'
 
 const clamp = (value: number, limit: number) => Math.max(-limit, Math.min(limit, value))
 
@@ -13,6 +13,8 @@ export function useArtCarousel(count: number, onOpen: (index: number) => void) {
   useEffect(() => {
     const element = stage.current
     if (!element || !count) return
+    const section = element.closest<HTMLElement>('.art')!
+    const pin = element.closest<HTMLElement>('.art-sticky')!
     const cards = Array.from(element.querySelectorAll<HTMLElement>('.art-print'))
     const images = cards.map((card) => card.querySelector('img'))
     let position = 0
@@ -52,9 +54,28 @@ export function useArtCarousel(count: number, onOpen: (index: number) => void) {
     const animate = () => {
       if (!frame) { previousTime = performance.now(); frame = requestAnimationFrame(tick) }
     }
+    // The last fifth of a viewport holds the final drawing before the pin releases.
+    const travel = () => Math.max(1, section.offsetHeight - pin.offsetHeight * 1.2)
+    const scroll = () => {
+      const next = galleryScrollPosition(-section.getBoundingClientRect().top, travel(), count)
+      if (next === target) return
+      target = next
+      animate()
+    }
+    const navigate = (next: number) => {
+      target = Math.max(0, Math.min(count - 1, next))
+      const top = window.scrollY + section.getBoundingClientRect().top
+      const destination = top + target / Math.max(1, count - 1) * travel()
+      // Keep horizontal dragging and keyboard navigation aligned with the page's
+      // scroll position, including when Lenis owns desktop scroll interpolation.
+      const event = new CustomEvent<number>('gallery:navigate', { detail: destination, cancelable: true })
+      if (window.dispatchEvent(event)) window.scrollTo({ top: destination, behavior: 'instant' })
+      animate()
+    }
     const resize = () => {
       step = cards[0].offsetWidth + Math.max(18, Math.min(element.clientWidth * 0.024, 32))
       paint()
+      scroll()
     }
     const down = (event: PointerEvent) => {
       if (!event.isPrimary || event.button !== 0) return
@@ -79,15 +100,13 @@ export function useArtCarousel(count: number, onOpen: (index: number) => void) {
       pointer.velocity = (event.clientX - pointer.lastX) / Math.max(time - pointer.time, 1)
       pointer.lastX = event.clientX
       pointer.time = time
-      target = pointer.origin - dx / step
-      animate()
+      navigate(pointer.origin - dx / step)
     }
     const up = (event: PointerEvent) => {
       if (!pointer || event.pointerId !== pointer.id) return
       if (pointer.dragging) {
         const velocity = performance.now() - pointer.time < 100 ? pointer.velocity : 0
-        target = Math.round(target - (reduced || event.type === 'pointercancel' ? 0 : clamp(velocity * 170 / step, 2)))
-        animate()
+        navigate(Math.round(target - (reduced || event.type === 'pointercancel' ? 0 : clamp(velocity * 170 / step, 2))))
       }
       pointer = null
       delete element.dataset.dragging
@@ -103,18 +122,16 @@ export function useArtCarousel(count: number, onOpen: (index: number) => void) {
       if (event.ctrlKey || Math.abs(event.deltaX) <= Math.abs(event.deltaY)) return
       event.preventDefault()
       event.stopPropagation()
-      target += clamp(event.deltaX * (event.deltaMode === 1 ? 16 : 1) / step, 1)
-      animate()
+      navigate(target + clamp(event.deltaX * (event.deltaMode === 1 ? 16 : 1) / step, 1))
       clearTimeout(snapTimer)
-      snapTimer = window.setTimeout(() => { target = Math.round(target); animate() }, 140)
+      snapTimer = window.setTimeout(() => navigate(Math.round(target)), 140)
     }
     const key = (event: KeyboardEvent) => {
       if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) {
         event.preventDefault()
         element.focus({ preventScroll: true })
         clearTimeout(snapTimer)
-        target = event.key === 'Home' ? 0 : event.key === 'End' ? count - 1 : Math.round(target) + (event.key === 'ArrowRight' ? 1 : -1)
-        animate()
+        navigate(event.key === 'Home' ? 0 : event.key === 'End' ? count - 1 : Math.round(target) + (event.key === 'ArrowRight' ? 1 : -1))
       } else if (event.target === element && (event.key === 'Enter' || event.key === ' ')) {
         event.preventDefault()
         onOpen(wrap(Math.round(target), count))
@@ -123,6 +140,7 @@ export function useArtCarousel(count: number, onOpen: (index: number) => void) {
     const observer = new ResizeObserver(resize)
     observer.observe(element)
     resize()
+    window.addEventListener('scroll', scroll, { passive: true })
     element.addEventListener('pointerdown', down)
     element.addEventListener('pointermove', move)
     window.addEventListener('pointerup', up)
@@ -134,6 +152,7 @@ export function useArtCarousel(count: number, onOpen: (index: number) => void) {
       observer.disconnect()
       cancelAnimationFrame(frame)
       clearTimeout(snapTimer)
+      window.removeEventListener('scroll', scroll)
       element.removeEventListener('pointerdown', down)
       element.removeEventListener('pointermove', move)
       window.removeEventListener('pointerup', up)

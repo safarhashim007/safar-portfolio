@@ -1,29 +1,15 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 
 import { photos } from '../data/photos'
 import { full, source } from '../lib/image'
-import { useScrollVelocity } from '../hooks/useScrollVelocity'
+import ArtworkViewer from './ArtworkViewer'
 import { useElementParallax } from '../hooks/useElementParallax'
 import './photo.css'
 
-/**
- * Through the lens.
- *
- * The one inversion in the palette: photographs are hung on ink, because a
- * print needs a dark mat to be read properly. Motion here is quicker than in
- * the drawings — each frame is uncovered by a mask travelling up it, and the
- * photograph lags inside its own window as the page moves — but nothing is
- * applied to the photograph itself. It is never tinted, warped or cropped.
- *
- * This ran on a shared WebGL canvas at first. The canvas is gone: everything
- * it was there to do, a mask and a few pixels of lag, CSS does natively, and
- * the version that could be seen working is worth more than the version that
- * could not.
- */
 export default function PhotoGallery() {
   const section = useRef<HTMLElement>(null)
-  useElementParallax(section, '.photo-frame, .photo-scene')
-  useScrollVelocity(section)
+  const [activePhoto, setActivePhoto] = useState<number | null>(null)
+  useElementParallax(section, '.photo-scene')
 
   return (
     <section className="photo on-dark" id="photography" ref={section} aria-labelledby="photo-title">
@@ -41,7 +27,11 @@ export default function PhotoGallery() {
         </div>
       </header>
 
-      <div className="photo-grid" id="photo-collection">
+      <div className="photo-collection-bar readout" id="photo-collection">
+        <span>Photo archive / {photos.length} frames</span>
+        <span>Tap a frame to view ↗</span>
+      </div>
+      <div className="photo-grid">
         {photos.map((photo, index) => {
           const image = source('photo', photo.id)
 
@@ -53,14 +43,15 @@ export default function PhotoGallery() {
                 data-reveal
                 style={{ aspectRatio: `${image.width} / ${image.height}` }}
               >
-                {/* The lag layer is separate from the image so the two
-                    transforms do not share a transition: the reveal needs one,
-                    the per-frame velocity must not have one, or every frame's
-                    update is smeared over the transition and the photograph
-                    swims instead of lagging. */}
-                <span className="photo-lag">
+                <button type="button" className="photo-lag" onClick={() => setActivePhoto(index)} aria-label={`View photograph ${index + 1}: ${photo.description}`} aria-haspopup="dialog">
                   <img
-                    src={full('photo', photo.id)}
+                    /* source() was already being built here and only its
+                       dimensions were used: the ladder went unread, sizes had
+                       no srcSet to choose from, and every frame loaded its
+                       largest rung — 13.9 MB of photographs on a phone that
+                       needs 3.1. */
+                    src={image.src}
+                    srcSet={image.srcSet}
                     sizes="(max-width: 600px) 92vw, (max-width: 1000px) 46vw, 30vw"
                     width={image.width}
                     height={image.height}
@@ -68,7 +59,7 @@ export default function PhotoGallery() {
                     loading={index < 3 ? 'eager' : 'lazy'}
                     decoding="async"
                   />
-                </span>
+                </button>
               </div>
 
               <figcaption className="photo-caption readout">
@@ -79,6 +70,16 @@ export default function PhotoGallery() {
           )
         })}
       </div>
+      {/* The sheet has a ragged bottom by nature — the columns are balanced as
+          evenly as twenty frames of these proportions allow — so it is closed
+          the same way it is opened, with a rule. Without it the archive just
+          stopped and the short column's gap read as a fault. */}
+      <div className="photo-collection-bar photo-collection-foot readout">
+        <span>End of archive</span>
+        <a href="#home">Back to top <span aria-hidden="true">↑</span></a>
+      </div>
+
+      <ArtworkViewer collection="photo" index={activePhoto} onChange={setActivePhoto} onClose={() => setActivePhoto(null)} />
     </section>
   )
 }
